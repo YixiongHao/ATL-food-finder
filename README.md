@@ -26,3 +26,5 @@ F. Extra Credit:
 1. As a user, I want to write reviews and rate restaurants so that I can share my experiences with others. (+10 points) 2. As a user, I want to reset my password if I forget it so that I can regain access to my account (÷5 points)
 
 GitHub Link: https://github.com/YixiongHao/ATL-food-finder
+
+'YixiongHao initial test commit'
