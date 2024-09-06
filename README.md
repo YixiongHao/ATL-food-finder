@@ -9,7 +9,7 @@ B. Restaurant Search:
 1.	As a user, I want to search for restaurants by name, cuisine type, or location so that I can find places to eat that match my preferences.
 2.	As a user, I want to filter search results by ratings and distance so that I can find the best and closest options.
 
-C. Geolocation
+C. Geolocation:
 1.	As a user, I want to view restaurant locations on an interactive Google Map so that I can easily visualize where they are.
 2.	As a user, I want to click on a restaurant marker on the map to see detailed information about that restaurant.
 
