@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
 
     # Custom Apps
+    # 'map.apps.MapConfig'
     'login.apps.LoginConfig'
 ]
 
