@@ -27,4 +27,3 @@ F. Extra Credit:
 
 GitHub Link: https://github.com/YixiongHao/ATL-food-finder
 
-'Carlsome123 initial test commit'
