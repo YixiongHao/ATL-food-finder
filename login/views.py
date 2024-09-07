@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import login, authenticate, logout
 
-from .forms import LoginForm
+from .forms import LoginForm, RegisterForm
 
 
 # Create your views here.
@@ -44,3 +44,9 @@ def sign_out(request):
     messages.success(request, f'You are now logged out.')
     # FIX THIS TO RETURN THEM TO ORIGINAL SITE INSTEAD OF LOGIN
     return redirect('login')
+
+
+def sign_up(request):
+    if request.method == 'GET':
+        form = RegisterForm()
+        return render(request, 'users/register.html', {'form': form})
