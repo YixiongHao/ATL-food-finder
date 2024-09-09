@@ -16,8 +16,8 @@
 
     function initMap(data) {
        const map = new google.maps.Map(document.getElementById('map'), {
-          zoom: 4,
-          center: {lat: 51.5944418, lng: 4.7492914}
+          zoom: 10,
+          center: {lat: 33.7488, lng: -84.3877}
        });
        const markers = data?.map((i) => {
             const marker = new google.maps.Marker({
@@ -39,7 +39,7 @@
         <div class="mapholder">
             <div id="map"></div>
             <script
-            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBJE6MXHYsobqQ1aw6cfMnPfuoL8E2atAU&callback=initMap&v=weekly"
+            src="https://maps.googleapis.com/maps/api/js?key={{ key }}&callback=initMap&v=weekly"
             defer
             ></script>
         </div>

@@ -10,4 +10,4 @@ def sign_in(request):
     context = {
         'key': key,
     }
-    return render(request, 'map/map.html', {'context' : context})
+    return render(request, 'map/map.html', context)
