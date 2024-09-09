@@ -8,6 +8,6 @@ import googlemaps
 def sign_in(request):
     key = settings.GOOGLE_API_KEY
     context = {
-        'key': key,
+        "key": key,
     }
-    return render(request, 'map/map.html', {'context' : context})
+    return render(request, 'map/map.html', context)
