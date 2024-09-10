@@ -1,10 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
+    <meta charset="UTF-8">
+    <title>Restaurant Locator</title>
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&callback=initMap" async defer></script>
+    <script>
+        function initMap() {
+            var map = new google.maps.Map(document.getElementById('map'), {
+                center: {lat: -34.397, lng: 150.644},
+                zoom: 8
+            });
+
+            {% for restaurant in restaurants %}
+            var marker = new google.maps.Marker({
+                position: {lat: {{ restaurant.latitude }}, lng: {{ restaurant.longitude }}},
+                map: map,
+                title: '{{ restaurant.name }}'
+            });
+            {% endfor %}
+        }
+    </script>
 </head>
 <body>
-$END$
+    {% block content %}
+    {% endblock %}
 </body>
 </html>
