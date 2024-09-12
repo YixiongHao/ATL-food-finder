@@ -1,5 +1,3 @@
-Hey look at me and read me please!
-
 # User Stories:
 A. User Authentication:
 1.	As a user, I want to register an account so that I can access personalized features.
