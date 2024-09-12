@@ -11,6 +11,11 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import environ
+
+# Initialise environment variables
+env = environ.Env()
+environ.Env.read_env()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -21,6 +26,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = "django-insecure-y=0n-(+mv%4k%vhl@^-5yq!6u-u$o+j*fo=nw%tnxg7ec&^k*("
+
+# API key to use Google Maps API services
+GOOGLE_API_KEY = env('GOOGLE_API_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -39,7 +47,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
 
     # Custom Apps
-    # 'map.apps.MapConfig'
+    'map.apps.MapConfig',
     'login.apps.LoginConfig'
 ]
 
