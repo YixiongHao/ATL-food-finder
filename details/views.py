@@ -10,9 +10,9 @@ def add_restaurant(request):
             return redirect('restaurant_list')
     else:
         form = RestaurantForm()
-    return render(request, 'restaurants/add_restaurant.html', {'form': form})
+    return render(request, 'details/add_restaurant.html', {'form': form})
 
 def restaurant_list(request):
     restaurants = Restaurant.objects.all()
-    return render(request, 'restaurants/restaurant_list.html', {'restaurants': restaurants})
+    return render(request, 'details/restaurant_list.html', {'details': restaurants})
 

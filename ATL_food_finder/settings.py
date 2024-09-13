@@ -48,7 +48,8 @@ INSTALLED_APPS = [
 
     # Custom Apps
     'map.apps.MapConfig',
-    'login.apps.LoginConfig'
+    'login.apps.LoginConfig',
+    'details.apps.DetailsConfig',
 ]
 
 MIDDLEWARE = [
