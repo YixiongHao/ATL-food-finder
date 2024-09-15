@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>{{ post.author | title}} Favorites</h1>
+	{% for post in faves %}
+		<h2>{{ post.title }}</h2>
+		<small>Rating: {{ post.rating }} with Cuisine: {{ post.cuisine }} </small>
+		<p>{{ post.description }}</p>
+        <p>{{ post.distance }}</p>
+	{% endfor %}
+{% endblock content %}
