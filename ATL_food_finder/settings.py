@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'map.apps.MapConfig',
     'login.apps.LoginConfig',
     'details.apps.DetailsConfig',
+    'favorites.apps.FavoritesConfig',
 ]
 
 MIDDLEWARE = [
@@ -67,7 +68,7 @@ ROOT_URLCONF = "ATL_food_finder.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
