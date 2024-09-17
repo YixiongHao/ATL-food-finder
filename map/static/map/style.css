@@ -3,12 +3,26 @@
  * that contains the map.
  */
 .mapholder{
-    height: 500px;
-    width: 50%;
+    height: 100%;
+    width: 100%;
+    display: block;
+    clear: none;
 }
 
 #map {
     height: 100%;
+}
+
+.login {
+    float: right;
+    margin: 5px;
+    padding: 8px;
+    background-color: lightgrey;
+    border-radius: 10px;
+    position: absolute;
+    right: 60px;
+    top: 5px;
+    z-index: 1;
 }
 
 /*
