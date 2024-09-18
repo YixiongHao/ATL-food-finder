@@ -3,56 +3,110 @@
 {% load static %}
 
 <script>
+    let map;
+    let service;
+    let infowindow;
 
-    $(document).ready(function(){
-        $.ajax({
-            method: 'GET',
-            success: function (data) {
-                console.log(data);
-                initMap(data);
-            }
-      });
-    });
-
-    function initMap(data) {
-       const map = new google.maps.Map(document.getElementById('map'), {
-          zoom: 10,
-          center: {lat: 33.7488, lng: -84.3877}
-       });
-       const markers = data?.map((i) => {
-            const marker = new google.maps.Marker({
-                position: { lat: parseFloat(i.latitude), lng: parseFloat(i.longitude)},
-                map: map,
-            })
+    function initMap() {
+        map = new google.maps.Map(document.getElementById('map'), {
+            zoom: 11,
+            center: {lat: 33.7488, lng: -84.3877}
         });
 
-     }
-  </script>
+        infowindow = new google.maps.InfoWindow();
 
+        const atlantaBounds = new google.maps.LatLngBounds(
+            new google.maps.LatLng(33.5486, -84.5762), // Southwest corner
+            new google.maps.LatLng(33.8867, -84.2791)  // Northeast corner
+        )
+        const request = {
+            type: ['restaurant'],
+            bounds: atlantaBounds
+        };
+
+        service = new google.maps.places.PlacesService(map);
+        service.textSearch(request, (results, status) => {
+            if (status === google.maps.places.PlacesServiceStatus.OK && results) {
+                for (let i = 0; i < results.length; i++) {
+                    createMarker(results[i]);
+                }
+
+                if (results.length > 0) {
+                    map.setCenter(results[0].geometry.location);
+                }
+            }
+        });
+
+        const request2 = {
+            type: ['meal_delivery'],
+            bounds: atlantaBounds
+        };
+        service2 = new google.maps.places.PlacesService(map);
+        service2.textSearch(request2, (results, status) => {
+            if (status === google.maps.places.PlacesServiceStatus.OK && results) {
+                for (let i = 0; i < results.length; i++) {
+                    createMarker(results[i]);
+                }
+
+                if (results.length > 0) {
+                    map.setCenter(results[0].geometry.location);
+                }
+            }
+        });
+
+        const request3 = {
+            type: ['meal_takeaway'],
+            bounds: atlantaBounds
+        };
+        service3 = new google.maps.places.PlacesService(map);
+        service3.textSearch(request3, (results, status) => {
+            if (status === google.maps.places.PlacesServiceStatus.OK && results) {
+                for (let i = 0; i < results.length; i++) {
+                    createMarker(results[i]);
+                }
+
+                if (results.length > 0) {
+                    map.setCenter(results[0].geometry.location);
+                }
+            }
+        });
+    }
+
+    function createMarker(place) {
+        if (!place.geometry || !place.geometry.location) return;
+
+        const marker = new google.maps.Marker({
+            map: map,
+            position: place.geometry.location,
+            title: place.name
+        });
+
+        google.maps.event.addListener(marker, "click", () => {
+            const content = `<strong>${place.name}</strong><br>${place.formatted_address}`;
+            infowindow.setContent(content);
+            infowindow.open(map, marker);
+        });
+    }
+
+    window.initMap = initMap;
+</script>
 
 <div class="pageholder">
-{#    <div class="titleholder">#}
-{#        <div class="title"><i class="fas fa-compass mr-2"></i> Home </div>#}
-{#    </div>#}
-
-    {# do a pop-up div w include tag, replace with actual button, connect js #}
     <div class="linkholder">
         <div class="mapholder">
             {% if not request.user.is_authenticated %}
-            <a class = "login" href="{% url 'login' %}">Login</a>
+            <a class="login" href="{% url 'login' %}">Login</a>
             {% else %}
-            <a class = "login" href="{% url 'logout' %}">Log Out</a>
+            <a class="login" href="{% url 'logout' %}">Log Out</a>
             {% endif %}
 
-            <div id="map"></div>
+            <div id="map" style="height: 500px; width: 100%;"></div>
             <script
-            src="https://maps.googleapis.com/maps/api/js?key={{ key }}&callback=initMap&v=weekly"
+            src="https://maps.googleapis.com/maps/api/js?key={{ key }}&callback=initMap&libraries=places"
             defer
             ></script>
         </div>
     </div>
 </div>
-
-
 
 {% endblock content %}
