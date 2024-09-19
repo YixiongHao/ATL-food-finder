@@ -30,7 +30,7 @@ def sign_in(request):
             user = authenticate(request, username=username, password=password)
             if user:
                 login(request, user)
-                messages.success(request, f'You are now logged in as {username.title()}.')
+                # messages.success(request, f'You are now logged in as {username.title()}.')
                 return redirect('map')
         # if login failed
         messages.error(request, f'Invalid username or password')
@@ -40,7 +40,7 @@ def sign_in(request):
 # logout button will lead to this instead
 def sign_out(request):
     logout(request)
-    messages.success(request, f'You are now logged out.')
+    # messages.success(request, f'You are now logged out.')
     return redirect('map')
 
 
@@ -55,7 +55,7 @@ def sign_up(request):
             user = form.save(commit=False)
             user.username = user.username.lower()
             user.save()
-            messages.success(request, "You have signed up successfully.")
+            # messages.success(request, "You have signed up successfully.")
             login(request, user)
             return redirect('map')
         else:
