@@ -132,6 +132,11 @@
             text-decoration: none;
             font-weight: 600;
         }
+        
+        .alert {
+            color: red;
+            margin-bottom: 16px;
+        }
     </style>
 </head>
 <body>
@@ -148,6 +153,17 @@
                 <div class="modal-content">
                     <p>Log in to see your saved places!</p>
                 </div>
+                {% if messages %}
+                    <div class="messages">
+                        {% for message in messages %}
+                            {% if forloop.last %}
+                                <div class="alert {% if message.tags %}alert-{{ message.tags }}"{% endif %}">
+                                    {{ message }}
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                {% endif %}
                 <!-- Django form starts here -->
                 <form method="post" action="{% url 'login' %}">
                     {% csrf_token %}
