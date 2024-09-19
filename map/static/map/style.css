@@ -9,6 +9,9 @@
     clear: none;
 }
 
+/*
+ * Important tag is needed to make sure map fits screen.
+ */
 #map {
     height: 100% !important;
 }
