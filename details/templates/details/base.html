@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Restaurant Locator</title>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC5EISM3uwT28Mzg2xv1OGveJkR1L_WkGI&callback=initMap" async defer></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key={{ key }}&callback=initMap" async defer></script>
     <script>
         function initMap() {
             var map = new google.maps.Map(document.getElementById('map'), {
