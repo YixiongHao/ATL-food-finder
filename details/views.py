@@ -1,4 +1,6 @@
 from django.shortcuts import render, redirect
+
+from ATL_food_finder import settings
 from .models import Restaurant
 from .forms import RestaurantForm
 
@@ -16,3 +18,9 @@ def restaurant_list(request):
     restaurants = Restaurant.objects.all()
     return render(request, 'details/restaurant_list.html', {'details': restaurants})
 
+def map(request):
+    key = settings.GOOGLE_API_KEY
+    context = {
+        'key': key,
+    }
+    return render(request, 'details/base.html', context)
