@@ -23,4 +23,5 @@ urlpatterns = [
     path("", include('map.urls')),
     path("", include('details.urls')),
     path("", include('favorites.urls')),
+    path("search/", include('search.urls')),
 ]

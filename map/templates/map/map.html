@@ -6,6 +6,8 @@
     let map;
     let service;
     let infowindow;
+    let userLocationMarker;
+    let userLocation;
     let searches = ['american_restaurant', 'bakery', 'bar', 'barbecue_restaurant', 'brazilian_restaurant',
     'breakfast_restaurant', 'brewpub', 'brunch_restaurant', 'cafe', 'chinese_restaurant', 'coffee_shop', 'fast_food_restaurant',
     'french_restaurant', 'greek_restaurant', 'hamburger_restaurant', 'ice_cream_shop', 'indian_restaurant',
@@ -16,6 +18,81 @@
     'vietnamese_restaurant',];
 
     function initMap() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition((position) => {
+                userLocation = {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude
+                };
+
+                // Initialize the map centered at the user's location
+                map = new google.maps.Map(document.getElementById('map'), {
+                    zoom: 12,
+                    center: userLocation
+                });
+
+                infowindow = new google.maps.InfoWindow();
+                service = new google.maps.places.PlacesService(map);
+
+                // Add a special marker for the user's current location
+                addUserLocationMarker(userLocation);
+
+                // Perform search queries near the user's location
+                for (let i = 0; i < searches.length; i++) {
+                    const request = {
+                        query: searches[i],
+                        location: userLocation,
+                        radius: 15000  // 15 km radius
+                    };
+                    service.textSearch(request, (results, status) => {
+                        if (status === google.maps.places.PlacesServiceStatus.OK && results) {
+                            for (let i = 0; i < results.length; i++) {
+                                createMarker(results[i]);
+                                restaurantsData.push({  // Create Restaurant model for each search result
+                                    name: results[i].name,
+                                    address: results[i].formatted_address,
+                                    geometry: results[i].geometry,
+                                    place_id: results[i].place_id
+                                });
+                            }
+
+                            const formData = new FormData();
+                            restaurantsData.forEach(restaurant => {
+                                formData.append('restaurants', JSON.stringify(restaurant)); // Append each restaurant as a JSON string
+                            });
+
+                            // Send restaurant data to Django backend
+                            fetch('/save-restaurants/', {
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRFToken': getCookie('csrftoken')  // Use a function to get CSRF token
+                                },
+                                body: formData
+                            })
+                            .then(response => response.json())
+                            .catch(error => console.error('Error:', error));
+                        } else {
+                            console.log('No restaurant data to send.');
+                        }
+                    });
+                }
+            }, () => {
+                const fallbackLocation = { lat: 33.7488, lng: -84.3877 };  // Fallback to Atlanta
+                map = new google.maps.Map(document.getElementById('map'), {
+                    zoom: 12,
+                    center: fallbackLocation
+                });
+                handleLocationError(true, fallbackLocation);
+            });
+        } else {
+            const fallbackLocation = { lat: 33.7488, lng: -84.3877 };  // Fallback to Atlanta
+            map = new google.maps.Map(document.getElementById('map'), {
+                zoom: 12,
+                center: fallbackLocation
+            });
+            handleLocationError(false, fallbackLocation);
+        }
+
         // Initialize map in the center of Atlanta
         const atlantaCenter = new google.maps.LatLng(33.7488, -84.3877);
         map = new google.maps.Map(document.getElementById('map'), {
@@ -69,6 +146,48 @@
         }
     }
 
+    // Function to add a special marker for the user's current location
+    function addUserLocationMarker(location) {
+        userLocationMarker = new google.maps.Marker({
+            position: location,
+            map: map,
+            title: "You are here",
+            icon: {
+                url: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png",  // A blue dot for user's location
+                scaledSize: new google.maps.Size(40, 40)  // Resize the marker icon
+            }
+        });
+
+        // Open an info window when the user clicks on their location marker
+        google.maps.event.addListener(userLocationMarker, "click", () => {
+            infowindow.setContent("You are here");
+            infowindow.open(map, userLocationMarker);
+        });
+    }
+
+    // Function to calculate the distance between two geographic points using the Haversine formula
+    function calculateDistance(lat1, lng1, lat2, lng2) {
+        const R = 6371; // Radius of the Earth in kilometers
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLng = (lng2 - lng1) * Math.PI / 180;
+        const a =
+            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+            Math.sin(dLng / 2) * Math.sin(dLng / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        const distance = R * c; // Distance in kilometers
+        return distance;
+    }
+
+    function handleLocationError(browserHasGeolocation, pos) {
+        infowindow = new google.maps.InfoWindow();
+        infowindow.setPosition(pos);
+        infowindow.setContent(browserHasGeolocation ?
+            'Error: The Geolocation service failed.' :
+            'Error: Your browser doesn\'t support geolocation.');
+        infowindow.open(map);
+    }
+
     function createMarker(place) {
         if (!place.geometry || !place.geometry.location) {
             return;
@@ -106,14 +225,22 @@
                         reviewsContent = 'No reviews available';
                     }
 
-                    // Create the content string
+                    // Calculate distance between user and the marker's location
+                    const distance = calculateDistance(
+                        userLocation.lat,
+                        userLocation.lng,
+                        placeDetails.geometry.location.lat(),
+                        placeDetails.geometry.location.lng()
+                    ).toFixed(2);  // Display distance up to 2 decimal places
+
+                    // Create the content string including distance
                     const content = `
                         <strong>${placeDetails.name}</strong><br>
-                        <a href="/details/${place.place_id}/">Details</a><br>
                         ${placeDetails.formatted_address}<br>
                         <strong>Rating:</strong> ${placeDetails.rating || 'No rating available'}<br>
                         <strong>Reviews:</strong><br>
-                        ${reviewsContent}
+                        ${reviewsContent}<br>
+                        <strong>Distance from your location:</strong> ${distance} km
                     `;
 
                     // Set content and open info window
