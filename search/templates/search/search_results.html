@@ -1,3 +1,8 @@
+{% extends 'map/base.html' %}
+{% block content %}
+
+<div id="map" style="height: 500px; width: 100%;"></div>
+    
 <h1>Nearby Restaurants</h1>
 <ul>
 {% for place in results %}
@@ -9,18 +14,74 @@
 {% empty %}
     <li>No restaurants found nearby.</li>
 {% endfor %}
-<script>function getUserLocation() {
-    fetch('/search/')
+</ul>
+    
+<script>
+    let map;
+    let userLocation;
+
+    function initMap() {
+        map = new google.maps.Map(document.getElementById('map'), {
+            zoom: 12,
+            center: {lat: 0, lng: 0}  // Default center, will be updated
+        });
+
+        // Try to get user's location
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    userLocation = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    };
+                    map.setCenter(userLocation);
+                    
+                    // Add a marker for user's location
+                    new google.maps.Marker({
+                        position: userLocation,
+                        map: map,
+                        title: "Your Location"
+                    });
+
+                    // You can send this location to your Django view using AJAX
+                    sendLocationToServer(userLocation);
+                },
+                () => {
+                    handleLocationError(true, map.getCenter());
+                }
+            );
+        } else {
+            handleLocationError(false, map.getCenter());
+        }
+    }
+
+    function handleLocationError(browserHasGeolocation, pos) {
+        // Handle error (e.g., show a message to the user)
+    }
+
+    function sendLocationToServer(location) {
+        fetch('/your-view-url/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify(location)
+        })
         .then(response => response.json())
         .then(data => {
-            if (data.latitude && data.longitude) {
-                console.log('User location:', data.latitude, data.longitude);
-                // Use the location data as needed
-            } else {
-                console.error('Error getting location:', data.error);
-            }
-        })
-        .catch(error => console.error('Error:', error));
-}</script>
+            // Handle the response from the server
+        });
+    }
 
-</ul>
+    // Function to get CSRF token
+    function getCookie(name) {
+        // Implementation to get CSRF token from cookies
+    }
+
+    window.initMap = initMap;
+</script>
+
+<script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&callback=initMap" async defer></script>
+
+{% endblock content %}
