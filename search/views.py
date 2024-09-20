@@ -8,7 +8,7 @@ import rich
 
 api_key = GOOGLE_API_KEY
 
-def search_places(request):
+'''def search_places(request):
     if request.method == 'GET':
         query = request.GET.get('query', '')
         url = f'https://maps.googleapis.com/maps/api/place/textsearch/json?query={query}&key={api_key}'
@@ -17,7 +17,7 @@ def search_places(request):
         results = response.json().get('results', [])
 
         return render(request, 'search/search_results.html', {'results': results})
-
+'''
 
 def search_nearby_restaurants(request):
     geolocation_url = f"https://www.googleapis.com/geolocation/v1/geolocate?key={api_key}"
@@ -39,7 +39,8 @@ def search_nearby_restaurants(request):
             response = requests.get(url)
             results = response.json().get('results', [])
             rich.print(results)
-            return render(request, 'search/search_results.html', {'results': results})
+            context = {'results': results, 'google_maps_api_key': api_key}
+            return render(request, 'search/search_results.html', context)
         else:
             return JsonResponse({'error': 'Location not found'}, status=400)
 
