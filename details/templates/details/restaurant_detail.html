@@ -1,0 +1,17 @@
+<!-- restaurant_detail.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ restaurant.name }} Details</title>
+</head>
+<body>
+    <h1>{{ restaurant.name }}</h1>
+    <p><strong>Address:</strong> {{ restaurant.address }}</p>
+    <p><strong>Location:</strong> Latitude {{ restaurant.lat }}, Longitude {{ restaurant.lng }}</p>
+    <!-- Add more fields as necessary -->
+    
+    <a href="{% url 'map' %}">Back to Home</a>
+</body>
+</html>

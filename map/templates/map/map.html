@@ -16,7 +16,7 @@
     'vietnamese_restaurant',];
 
     function initMap() {
-        console.log("testing");
+        // Initialize map in the center of Atlanta
         const atlantaCenter = new google.maps.LatLng(33.7488, -84.3877);
         map = new google.maps.Map(document.getElementById('map'), {
             zoom: 11,
@@ -25,6 +25,8 @@
 
         infowindow = new google.maps.InfoWindow();
 
+        // Iterate over every food/drink type to obtain all search results
+        // TODO: max of 20 restaurants from each search result. How do we get more?
         service = new google.maps.places.PlacesService(map);
         for (let i = 0; i < searches.length; i++) {
             const request = {
@@ -32,15 +34,36 @@
                 location: atlantaCenter,
 
             };
+            const restaurantsData = []; // This list is populated with Restaurant models
             service.textSearch(request, (results, status) => {
                 if (status === google.maps.places.PlacesServiceStatus.OK && results) {
                     for (let i = 0; i < results.length; i++) {
                         createMarker(results[i]);
+                        restaurantsData.push({  // Create Restaurant model for each search result
+                            name: results[i].name,
+                            address: results[i].formatted_address,
+                            geometry: results[i].geometry,
+                            place_id: results[i].place_id
+                        });
                     }
 
-                    if (results.length > 0) {
-                        map.setCenter(results[0].geometry.location);
-                    }
+                    const formData = new FormData();
+                    restaurantsData.forEach(restaurant => {
+                        formData.append('restaurants', JSON.stringify(restaurant)); // Append each restaurant as a JSON string
+                    });
+
+                    // Send restaurant data to Django backend
+                    fetch('/save-restaurants/', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': getCookie('csrftoken')  // Use a function to get CSRF token
+                        },
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .catch(error => console.error('Error:', error));
+                } else {
+                    console.log('No restaurant data to send.');
                 }
             });
         }
@@ -64,6 +87,13 @@
                 fields: ['name', 'formatted_address', 'rating', 'reviews', 'geometry']
             };
 
+            /*
+             * Should be included in details:
+             * Restaurant name
+             * Address
+             * Link to details page
+             * Option to add to favorites
+             */
             service.getDetails(request, (placeDetails, status) => {
                 if (status === google.maps.places.PlacesServiceStatus.OK && placeDetails) {
                     // Prepare the reviews content
@@ -79,6 +109,7 @@
                     // Create the content string
                     const content = `
                         <strong>${placeDetails.name}</strong><br>
+                        <a href="/details/${place.place_id}/">Details</a><br>
                         ${placeDetails.formatted_address}<br>
                         <strong>Rating:</strong> ${placeDetails.rating || 'No rating available'}<br>
                         <strong>Reviews:</strong><br>
@@ -94,6 +125,24 @@
             });
         });
     }
+
+    // Function used to obtain CSRF token
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                // Check if this cookie string begins with the name we want
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
 
     window.initMap = initMap;
 </script>
