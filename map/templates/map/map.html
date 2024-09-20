@@ -7,17 +7,17 @@
     let service;
     let infowindow;
     let searches = ['american_restaurant', 'bakery', 'bar', 'barbecue_restaurant', 'brazilian_restaurant',
-'breakfast_restaurant', 'brewpub', 'brunch_restaurant', 'cafe', 'chinese_restaurant', 'coffee_shop', 'fast_food_restaurant',
-'french_restaurant', 'greek_restaurant', 'hamburger_restaurant', 'ice_cream_shop', 'indian_restaurant',
-'indonesian_restaurant', 'italian_restaurant', 'japanese_restaurant', 'korean_restaurant', 'lebanese_restaurant',
-'meal_delivery', 'meal_takeaway', 'mediterranean_restaurant', 'mexican_restaurant', 'middle_eastern_restaurant',
-'pizza_restaurant', 'ramen_restaurant', 'restaurant', 'sandwich_shop', 'seafood_restaurant', 'spanish_restaurant',
-'steak_house', 'sushi_restaurant', 'thai_restaurant', 'turkish_restaurant', 'vegan_restaurant', 'vegetarian_restaurant',
-'vietnamese_restaurant',]
+    'breakfast_restaurant', 'brewpub', 'brunch_restaurant', 'cafe', 'chinese_restaurant', 'coffee_shop', 'fast_food_restaurant',
+    'french_restaurant', 'greek_restaurant', 'hamburger_restaurant', 'ice_cream_shop', 'indian_restaurant',
+    'indonesian_restaurant', 'italian_restaurant', 'japanese_restaurant', 'korean_restaurant', 'lebanese_restaurant',
+    'meal_delivery', 'meal_takeaway', 'mediterranean_restaurant', 'mexican_restaurant', 'middle_eastern_restaurant',
+    'pizza_restaurant', 'ramen_restaurant', 'restaurant', 'sandwich_shop', 'seafood_restaurant', 'spanish_restaurant',
+    'steak_house', 'sushi_restaurant', 'thai_restaurant', 'turkish_restaurant', 'vegan_restaurant', 'vegetarian_restaurant',
+    'vietnamese_restaurant',];
 
     function initMap() {
         console.log("testing");
-        const atlantaCenter = new google.maps.LatLng(33.7488, -84.3877)
+        const atlantaCenter = new google.maps.LatLng(33.7488, -84.3877);
         map = new google.maps.Map(document.getElementById('map'), {
             zoom: 11,
             center: atlantaCenter
@@ -25,18 +25,12 @@
 
         infowindow = new google.maps.InfoWindow();
 
-        /* const atlantaBounds = new google.maps.LatLngBounds(
-            new google.maps.LatLng(33.5486, -84.5762), // Southwest corner
-            new google.maps.LatLng(33.8867, -84.2791)  // Northeast corner
-        )
-        */
-
         service = new google.maps.places.PlacesService(map);
-        for (i = 0; i < searches.length; i++) {
+        for (let i = 0; i < searches.length; i++) {
             const request = {
                 query: searches[i],
                 location: atlantaCenter,
-                radius: 15000
+
             };
             service.textSearch(request, (results, status) => {
                 if (status === google.maps.places.PlacesServiceStatus.OK && results) {
@@ -54,7 +48,6 @@
 
     function createMarker(place) {
         if (!place.geometry || !place.geometry.location) {
-            console.log("Marker not created!");
             return;
         }
 
@@ -65,9 +58,40 @@
         });
 
         google.maps.event.addListener(marker, "click", () => {
-            const content = `<strong>${place.name}</strong><br>${place.formatted_address}`;
-            infowindow.setContent(content);
-            infowindow.open(map, marker);
+            // Use Place Details API to get more information about the place
+            const request = {
+                placeId: place.place_id,
+                fields: ['name', 'formatted_address', 'rating', 'reviews', 'geometry']
+            };
+
+            service.getDetails(request, (placeDetails, status) => {
+                if (status === google.maps.places.PlacesServiceStatus.OK && placeDetails) {
+                    // Prepare the reviews content
+                    let reviewsContent = '';
+                    if (placeDetails.reviews && placeDetails.reviews.length > 0) {
+                        reviewsContent = placeDetails.reviews.slice(0, 3).map(review => `
+                            <p><strong>${review.author_name}</strong>: ${review.text}</p>
+                        `).join('');
+                    } else {
+                        reviewsContent = 'No reviews available';
+                    }
+
+                    // Create the content string
+                    const content = `
+                        <strong>${placeDetails.name}</strong><br>
+                        ${placeDetails.formatted_address}<br>
+                        <strong>Rating:</strong> ${placeDetails.rating || 'No rating available'}<br>
+                        <strong>Reviews:</strong><br>
+                        ${reviewsContent}
+                    `;
+
+                    // Set content and open info window
+                    infowindow.setContent(content);
+                    infowindow.open(map, marker);
+                } else {
+                    console.log("Failed to get place details: ", status);
+                }
+            });
         });
     }
 
