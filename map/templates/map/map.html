@@ -25,18 +25,11 @@
 
         infowindow = new google.maps.InfoWindow();
 
-        /* const atlantaBounds = new google.maps.LatLngBounds(
-            new google.maps.LatLng(33.5486, -84.5762), // Southwest corner
-            new google.maps.LatLng(33.8867, -84.2791)  // Northeast corner
-        )
-        */
-
         service = new google.maps.places.PlacesService(map);
         for (i = 0; i < searches.length; i++) {
             const request = {
                 query: searches[i],
                 location: atlantaCenter,
-                radius: 15000
             };
             service.textSearch(request, (results, status) => {
                 if (status === google.maps.places.PlacesServiceStatus.OK && results) {
@@ -54,7 +47,6 @@
 
     function createMarker(place) {
         if (!place.geometry || !place.geometry.location) {
-            console.log("Marker not created!");
             return;
         }
 
