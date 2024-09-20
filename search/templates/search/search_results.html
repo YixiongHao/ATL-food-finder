@@ -1,0 +1,26 @@
+<h1>Nearby Restaurants</h1>
+<ul>
+{% for place in results %}
+    <li>
+        <h2>{{ place.name }}</h2>
+        <p>Address: {{ place.vicinity }}</p>
+        <p>Rating: {{ place.rating }}</p>
+    </li>
+{% empty %}
+    <li>No restaurants found nearby.</li>
+{% endfor %}
+<script>function getUserLocation() {
+    fetch('/search/')
+        .then(response => response.json())
+        .then(data => {
+            if (data.latitude && data.longitude) {
+                console.log('User location:', data.latitude, data.longitude);
+                // Use the location data as needed
+            } else {
+                console.error('Error getting location:', data.error);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+}</script>
+
+</ul>
