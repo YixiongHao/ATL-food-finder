@@ -6,50 +6,99 @@
     let map;
     let service;
     let infowindow;
-    let searches = ['american_restaurant', 'bakery', 'bar', 'barbecue_restaurant', 'brazilian_restaurant',
-    'breakfast_restaurant', 'brewpub', 'brunch_restaurant', 'cafe', 'chinese_restaurant', 'coffee_shop', 'fast_food_restaurant',
-    'french_restaurant', 'greek_restaurant', 'hamburger_restaurant', 'ice_cream_shop', 'indian_restaurant',
-    'indonesian_restaurant', 'italian_restaurant', 'japanese_restaurant', 'korean_restaurant', 'lebanese_restaurant',
-    'meal_delivery', 'meal_takeaway', 'mediterranean_restaurant', 'mexican_restaurant', 'middle_eastern_restaurant',
-    'pizza_restaurant', 'ramen_restaurant', 'restaurant', 'sandwich_shop', 'seafood_restaurant', 'spanish_restaurant',
-    'steak_house', 'sushi_restaurant', 'thai_restaurant', 'turkish_restaurant', 'vegan_restaurant', 'vegetarian_restaurant',
-    'vietnamese_restaurant',];
+    let userLocationMarker;
+    let userLocation;
+    let searches = ['american_restaurant', 'bakery', 'bar', 'restaurant'];
 
     function initMap() {
-        console.log("testing");
-        const atlantaCenter = new google.maps.LatLng(33.7488, -84.3877);
-        map = new google.maps.Map(document.getElementById('map'), {
-            zoom: 11,
-            center: atlantaCenter
-        });
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition((position) => {
+                userLocation = {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude
+                };
 
-        infowindow = new google.maps.InfoWindow();
+                // Initialize the map centered at the user's location
+                map = new google.maps.Map(document.getElementById('map'), {
+                    zoom: 12,
+                    center: userLocation
+                });
 
-        service = new google.maps.places.PlacesService(map);
-        for (let i = 0; i < searches.length; i++) {
-            const request = {
-                query: searches[i],
-                location: atlantaCenter,
+                infowindow = new google.maps.InfoWindow();
+                service = new google.maps.places.PlacesService(map);
 
-            };
-            service.textSearch(request, (results, status) => {
-                if (status === google.maps.places.PlacesServiceStatus.OK && results) {
-                    for (let i = 0; i < results.length; i++) {
-                        createMarker(results[i]);
-                    }
+                // Add a special marker for the user's current location
+                addUserLocationMarker(userLocation);
 
-                    if (results.length > 0) {
-                        map.setCenter(results[0].geometry.location);
-                    }
+                // Perform search queries near the user's location
+                for (let i = 0; i < searches.length; i++) {
+                    const request = {
+                        query: searches[i],
+                        location: userLocation,
+                        radius: 15000  // 15 km radius
+                    };
+                    service.textSearch(request, (results, status) => {
+                        if (status === google.maps.places.PlacesServiceStatus.OK && results) {
+                            for (let j = 0; j < results.length; j++) {
+                                createMarker(results[j]);
+                            }
+
+                            if (results.length > 0) {
+                                map.setCenter(results[0].geometry.location);
+                            }
+                        } else {
+                            console.error("Places search failed:", status);
+                        }
+                    });
                 }
+            }, () => {
+                const fallbackLocation = { lat: 33.7488, lng: -84.3877 };  // Fallback to Atlanta
+                map = new google.maps.Map(document.getElementById('map'), {
+                    zoom: 12,
+                    center: fallbackLocation
+                });
+                handleLocationError(true, fallbackLocation);
             });
+        } else {
+            const fallbackLocation = { lat: 33.7488, lng: -84.3877 };  // Fallback to Atlanta
+            map = new google.maps.Map(document.getElementById('map'), {
+                zoom: 12,
+                center: fallbackLocation
+            });
+            handleLocationError(false, fallbackLocation);
         }
     }
 
+    // Function to add a special marker for the user's current location
+    function addUserLocationMarker(location) {
+        userLocationMarker = new google.maps.Marker({
+            position: location,
+            map: map,
+            title: "You are here",
+            icon: {
+                url: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png",  // A blue dot for user's location
+                scaledSize: new google.maps.Size(40, 40)  // Resize the marker icon
+            }
+        });
+
+        // Open an info window when the user clicks on their location marker
+        google.maps.event.addListener(userLocationMarker, "click", () => {
+            infowindow.setContent("You are here");
+            infowindow.open(map, userLocationMarker);
+        });
+    }
+
+    function handleLocationError(browserHasGeolocation, pos) {
+        infowindow = new google.maps.InfoWindow();
+        infowindow.setPosition(pos);
+        infowindow.setContent(browserHasGeolocation ?
+            'Error: The Geolocation service failed.' :
+            'Error: Your browser doesn\'t support geolocation.');
+        infowindow.open(map);
+    }
+
     function createMarker(place) {
-        if (!place.geometry || !place.geometry.location) {
-            return;
-        }
+        if (!place.geometry || !place.geometry.location) return;
 
         const marker = new google.maps.Marker({
             map: map,
@@ -58,7 +107,6 @@
         });
 
         google.maps.event.addListener(marker, "click", () => {
-            // Use Place Details API to get more information about the place
             const request = {
                 placeId: place.place_id,
                 fields: ['name', 'formatted_address', 'rating', 'reviews', 'geometry']
@@ -66,7 +114,6 @@
 
             service.getDetails(request, (placeDetails, status) => {
                 if (status === google.maps.places.PlacesServiceStatus.OK && placeDetails) {
-                    // Prepare the reviews content
                     let reviewsContent = '';
                     if (placeDetails.reviews && placeDetails.reviews.length > 0) {
                         reviewsContent = placeDetails.reviews.slice(0, 3).map(review => `
@@ -76,7 +123,6 @@
                         reviewsContent = 'No reviews available';
                     }
 
-                    // Create the content string
                     const content = `
                         <strong>${placeDetails.name}</strong><br>
                         ${placeDetails.formatted_address}<br>
@@ -85,7 +131,6 @@
                         ${reviewsContent}
                     `;
 
-                    // Set content and open info window
                     infowindow.setContent(content);
                     infowindow.open(map, marker);
                 } else {
@@ -98,22 +143,7 @@
     window.initMap = initMap;
 </script>
 
-<div class="pageholder">
-    <div class="linkholder">
-        <div class="mapholder">
-            {% if not request.user.is_authenticated %}
-            <a class="login" href="{% url 'login' %}">Login</a>
-            {% else %}
-            <a class="login" href="{% url 'logout' %}">Log Out</a>
-            {% endif %}
-
-            <div id="map" style="height: 500px; width: 100%;"></div>
-            <script
-            src="https://maps.googleapis.com/maps/api/js?key={{ key }}&callback=initMap&libraries=places"
-            defer
-            ></script>
-        </div>
-    </div>
-</div>
+<div id="map" style="height: 500px; width: 100%;"></div>
+<script src="https://maps.googleapis.com/maps/api/js?key={{ key }}&callback=initMap&libraries=places" defer></script>
 
 {% endblock content %}
