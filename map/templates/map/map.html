@@ -278,9 +278,9 @@
 <div class="pageholder">
     <div class="linkholder">
         <div class="mapholder">
-            {% include 'map/overlay' %}
+            {% include 'map/overlay.html' %}
 
-            <div id="map" style="height: 500px; width: 100%;"></div>
+            <div id="map"></div>
             <script
             src="https://maps.googleapis.com/maps/api/js?key={{ key }}&callback=initMap&libraries=places"
             defer
