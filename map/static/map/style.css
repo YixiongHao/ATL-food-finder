@@ -22,3 +22,22 @@ body {
   margin: 0;
   padding: 0;
 }
+
+.favorite-btn {
+    background-color: #ff6b6b;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-size: 14px;
+    border-radius: 5px;
+    display: block; /* Makes the button behave like a block element */
+    /*margin-left: 50px;*/
+    /*margin-right: auto;*/
+}
+
+.favorite-btn:hover {
+    background-color: #ff4f4f;
+}
+
+
