@@ -3,7 +3,9 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.shortcuts import redirect
-from .models import Restaurant, UserProfile
+from .models import Restaurant, UserProfile, Favorite
+from django.shortcuts import render
+
 
 # @login_required
 # @csrf_exempt
@@ -27,11 +29,25 @@ def favorite_restaurant(request):
             defaults={'name': name, 'address': address, 'lat': lat, 'lng': lng}
         )
 
-        # Associate the restaurant with the user's favorites
-        user_profile = UserProfile.objects.get(user=request.user)
-        user_profile.restaurant = restaurant
-        user_profile.save()
+        # Create or get the favorite entry
+        Favorite.objects.get_or_create(user=request.user, restaurant=restaurant, defaults={
+            'title': name,
+            'description': address,
+            'distance': 0.0,  # Or however you want to handle this
+            'cuisine': 'Unknown',  # Provide a default or adjust as needed
+            'rating': 0.0,  # Or however you want to handle this
+            'place_id': place_id
+        })
 
         return JsonResponse({'success': True})
 
     return JsonResponse({'success': False, 'error': 'Invalid request'})
+
+
+def user_favorites(request):
+    if request.user.is_authenticated:
+        # Use the correct relation to access favorites
+        saved_restaurants = Restaurant.objects.filter(favorites__user=request.user).order_by('name')
+        return render(request, 'favorites/favorites.html', {'saved_restaurants': saved_restaurants})
+    else:
+        return redirect('login')  # Redirect to login if not authenticated
