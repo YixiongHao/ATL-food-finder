@@ -122,7 +122,9 @@ input[type="password"], input[type="email"] {
             <div class="modal">
                 <div class="modal-header">
                     <h2 class="modal-title">Register</h2>
-                    <button class="close-button">&times;</button>
+                    <form action="{% url 'map' %}" method="get">
+                        <button class="close-button">&times;</button>
+                    </form>
                 </div>
                 <div class="modal-content">
                     <p>Register Now to Create an Account</p>
