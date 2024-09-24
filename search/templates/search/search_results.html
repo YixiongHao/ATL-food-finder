@@ -7,8 +7,8 @@
 <ul>
 {% for place in results %}
     <li>
-        <h2>{{ place.name }}</h2>
-        <p>Address: {{ place.vicinity }}</p>
+        <h2>{{ place.displayName.text }}</h2>
+        <p>Address: {{ place.formattedAddress }}</p>
         <p>Rating: {{ place.rating }}</p>
     </li>
 {% empty %}

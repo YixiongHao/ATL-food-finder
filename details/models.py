@@ -7,7 +7,7 @@ class Restaurant(models.Model):
     link_name = models.CharField(max_length=255)
     lat = models.DecimalField(max_digits=9, decimal_places=6)
     lng = models.DecimalField(max_digits=9, decimal_places=6)
-    # is_favorite = models.BooleanField(default=False)
+    cuisine_type = models.CharField(max_length=255)
 
     def __str__(self):
         return self.name
