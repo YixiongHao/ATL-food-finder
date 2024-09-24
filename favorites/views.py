@@ -1,11 +1,16 @@
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.shortcuts import redirect
 from .models import Restaurant, UserProfile
 
-@login_required
-@csrf_exempt
+# @login_required
+# @csrf_exempt
 def favorite_restaurant(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({'success': False, 'error': 'You must be logged in to favorite a restaurant.'}, status=401)
+
     if request.method == 'POST':
         place_id = request.POST.get('place_id')
         name = request.POST.get('name')
