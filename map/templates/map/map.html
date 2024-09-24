@@ -138,7 +138,7 @@
                         .join(', ') : 'Not available';
 
                     const content = `
-                       <button id="favorite-${placeDetails.place_id}" class="favorite-btn">Favorite</button>
+                        <button id="favorite-${placeDetails.place_id}" class="favorite-btn">Favorite</button>
                         <strong>${placeDetails.name}</strong><br>
                         ${placeDetails.formatted_address}<br>
                         <a href="/details/${place.place_id}/">Details</a><br>
@@ -150,7 +150,6 @@
 
                     infowindow.setContent(content);
                     infowindow.open(map, marker);
-<<<<<<< HEAD
 
                     // Add click listener to the "Favorite" button
                     google.maps.event.addListener(marker, "click", () => {
@@ -165,8 +164,6 @@
                 });
                 } else {
                     console.log("Failed to get place details: ", status);
-=======
->>>>>>> 98d2dc6e01a41aac97322db00e49ffd2436c7bd0
                 }
             });
         });
