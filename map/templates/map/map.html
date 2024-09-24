@@ -8,6 +8,7 @@
     let infowindow;
     let userLocationMarker;
     let userLocation;
+    let markers = []; // Track markers to clear them
     let searches = ['american_restaurant', 'bakery', 'bar', 'barbecue_restaurant', 'brazilian_restaurant',
     'breakfast_restaurant', 'brewpub', 'brunch_restaurant', 'cafe', 'chinese_restaurant', 'coffee_shop', 'fast_food_restaurant',
     'french_restaurant', 'greek_restaurant', 'hamburger_restaurant', 'ice_cream_shop', 'indian_restaurant',
@@ -15,7 +16,7 @@
     'meal_delivery', 'meal_takeaway', 'mediterranean_restaurant', 'mexican_restaurant', 'middle_eastern_restaurant',
     'pizza_restaurant', 'ramen_restaurant', 'restaurant', 'sandwich_shop', 'seafood_restaurant', 'spanish_restaurant',
     'steak_house', 'sushi_restaurant', 'thai_restaurant', 'turkish_restaurant', 'vegan_restaurant', 'vegetarian_restaurant',
-    'vietnamese_restaurant',];
+    'vietnamese_restaurant'];
 
     function initMap() {
         if (navigator.geolocation) {
@@ -34,156 +35,70 @@
                 infowindow = new google.maps.InfoWindow();
                 service = new google.maps.places.PlacesService(map);
 
-                // Add a special marker for the user's current location
+                // Add user location marker
                 addUserLocationMarker(userLocation);
 
-                // Perform search queries near the user's location
-                for (let i = 0; i < searches.length; i++) {
-                    const request = {
-                        query: searches[i],
-                        location: userLocation,
-                        radius: 15000  // 15 km radius
-                    };
-                    service.textSearch(request, (results, status) => {
-                        if (status === google.maps.places.PlacesServiceStatus.OK && results) {
-                            for (let i = 0; i < results.length; i++) {
-                                createMarker(results[i]);
-                                restaurantsData.push({
-                                    name: results[i].name,
-                                    address: results[i].formatted_address,
-                                    geometry: results[i].geometry,
-                                    place_id: results[i].place_id
-                                });
-                            }
+                // Perform initial restaurant search based on zoom level
+                updateRestaurants();
 
-                            const formData = new FormData();
-                            restaurantsData.forEach(restaurant => {
-                                formData.append('restaurants', JSON.stringify(restaurant));
-                            });
-
-                            // Send restaurant data to Django backend
-                            fetch('/save-restaurants/', {
-                                method: 'POST',
-                                headers: {
-                                    'X-CSRFToken': getCookie('csrftoken')  // Use a function to get CSRF token
-                                },
-                                body: formData
-                            })
-                            .then(response => response.json())
-                            .catch(error => console.error('Error:', error));
-                        } else {
-                            console.log('No restaurant data to send.');
-                        }
-                    });
-                }
-            }, () => {
-                const fallbackLocation = { lat: 33.7488, lng: -84.3877 };  // Fallback to Atlanta
-                map = new google.maps.Map(document.getElementById('map'), {
-                    zoom: 12,
-                    center: fallbackLocation
+                // Add zoom change listener to dynamically update restaurants as the user zooms
+                google.maps.event.addListener(map, 'zoom_changed', () => {
+                    clearMarkers(); // Clear old markers
+                    updateRestaurants(); // Add new restaurants based on zoom level
                 });
+            }, () => {
+                const fallbackLocation = { lat: 33.7488, lng: -84.3877 }; // Fallback to Atlanta
                 handleLocationError(true, fallbackLocation);
             });
         } else {
-            const fallbackLocation = { lat: 33.7488, lng: -84.3877 };  // Fallback to Atlanta
-            map = new google.maps.Map(document.getElementById('map'), {
-                zoom: 12,
-                center: fallbackLocation
-            });
+            const fallbackLocation = { lat: 33.7488, lng: -84.3877 }; // Fallback to Atlanta
             handleLocationError(false, fallbackLocation);
         }
+    }
 
-        const atlantaCenter = new google.maps.LatLng(33.7488, -84.3877);
-        map = new google.maps.Map(document.getElementById('map'), {
-            zoom: 11,
-            center: atlantaCenter
-        });
+    // Update restaurants dynamically based on zoom level
+    function updateRestaurants() {
+        const zoomLevel = map.getZoom();
+        let radius;
 
-        infowindow = new google.maps.InfoWindow();
+        // Dynamically adjust the radius based on the zoom level
+        if (zoomLevel >= 15) {
+            radius = 1000; // 1 km for detailed zoom
+        } else if (zoomLevel >= 12) {
+            radius = 5000; // 5 km for moderate zoom
+        } else if (zoomLevel >= 9) {
+            radius = 15000; // 15 km for further out
+        } else {
+            radius = 30000; // 30 km for wide zoom
+        }
 
-        service = new google.maps.places.PlacesService(map);
         for (let i = 0; i < searches.length; i++) {
             const request = {
                 query: searches[i],
-                location: atlantaCenter,
+                location: userLocation,
+                radius: radius // Use dynamic radius
             };
-            const restaurantsData = [];
             service.textSearch(request, (results, status) => {
                 if (status === google.maps.places.PlacesServiceStatus.OK && results) {
-                    for (let i = 0; i < results.length; i++) {
-                        createMarker(results[i]);
-                        restaurantsData.push({
-                            name: results[i].name,
-                            address: results[i].formatted_address,
-                            geometry: results[i].geometry,
-                            place_id: results[i].place_id,
-                        });
+                    for (let j = 0; j < results.length; j++) {
+                        createMarker(results[j]);
                     }
-
-                    const formData = new FormData();
-                    restaurantsData.forEach(restaurant => {
-                        formData.append('restaurants', JSON.stringify(restaurant));
-                    });
-
-                    fetch('/save-restaurants/', {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRFToken': getCookie('csrftoken')
-                        },
-                        body: formData
-                    })
-                    .then(response => response.json())
-                    .catch(error => console.error('Error:', error));
-                } else {
-                    console.log('No restaurant data to send.');
                 }
             });
         }
     }
 
-    function addUserLocationMarker(location) {
-        userLocationMarker = new google.maps.Marker({
-            position: location,
-            map: map,
-            title: "You are here",
-            icon: {
-                url: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png",
-                scaledSize: new google.maps.Size(40, 40)
-            }
-        });
-
-        google.maps.event.addListener(userLocationMarker, "click", () => {
-            infowindow.setContent("You are here");
-            infowindow.open(map, userLocationMarker);
-        });
-    }
-
-    function calculateDistance(lat1, lng1, lat2, lng2) {
-        const R = 6371;
-        const dLat = (lat2 - lat1) * Math.PI / 180;
-        const dLng = (lng2 - lng1) * Math.PI / 180;
-        const a =
-            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-            Math.sin(dLng / 2) * Math.sin(dLng / 2);
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        const distance = R * c;
-        return distance;
-    }
-
-    function handleLocationError(browserHasGeolocation, pos) {
-        infowindow = new google.maps.InfoWindow();
-        infowindow.setPosition(pos);
-        infowindow.setContent(browserHasGeolocation ?
-            'Error: The Geolocation service failed.' :
-            'Error: Your browser doesn\'t support geolocation.');
-        infowindow.open(map);
-    }
-
-    function createMarker(place) {
-        if (!place.geometry || !place.geometry.location) {
-            return;
+    // Clear all markers from the map
+    function clearMarkers() {
+        for (let i = 0; i < markers.length; i++) {
+            markers[i].setMap(null); // Remove marker from map
         }
+        markers = []; // Clear marker array
+    }
+
+    // Create a new marker for each restaurant
+    function createMarker(place) {
+        if (!place.geometry || !place.geometry.location) return;
 
         const marker = new google.maps.Marker({
             map: map,
@@ -191,7 +106,9 @@
             title: place.name
         });
 
-        google.maps.event.addListener(marker, "click", () => {
+        markers.push(marker); // Add marker to global array
+
+        google.maps.event.addListener(marker, 'click', () => {
             const request = {
                 placeId: place.place_id,
                 fields: ['name', 'formatted_address', 'rating', 'reviews', 'types', 'geometry']
@@ -215,47 +132,58 @@
                         placeDetails.geometry.location.lng()
                     ).toFixed(2);
 
-                    let cuisineType = '';
-                    if (placeDetails.types && placeDetails.types.length > 0) {
-                        cuisineType = placeDetails.types
-                            .filter(type => type.includes('restaurant') || type.includes('food'))
-                            .map(type => type.replace('_', ' '))
-                            .join(', ');
-                    }
+                    const cuisineType = placeDetails.types ? placeDetails.types
+                        .filter(type => type.includes('restaurant') || type.includes('food'))
+                        .map(type => type.replace('_', ' '))
+                        .join(', ') : 'Not available';
 
                     const content = `
                         <strong>${placeDetails.name}</strong><br>
                         ${placeDetails.formatted_address}<br>
                         <a href="/details/${place.place_id}/">Details</a><br>
-                        <strong>Cuisine:</strong> ${cuisineType || 'Not available'}<br>
+                        <strong>Cuisine:</strong> ${cuisineType}<br>
                         <strong>Rating:</strong> ${placeDetails.rating || 'No rating available'}<br>
-                        <strong>Reviews:</strong><br>
-                        ${reviewsContent}<br>
-                        <strong>Distance from your location:</strong> ${distance} km
+                        <strong>Distance from your location:</strong> ${distance} km<br>
+                        <strong>Reviews:</strong> ${reviewsContent}
                     `;
 
                     infowindow.setContent(content);
                     infowindow.open(map, marker);
-                } else {
-                    console.log("Failed to get place details: ", status);
                 }
             });
         });
     }
 
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
+    // Add a marker for the user's current location
+    function addUserLocationMarker(location) {
+        userLocationMarker = new google.maps.Marker({
+            position: location,
+            map: map,
+            title: "You are here",
+            icon: {
+                url: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png",
+                scaledSize: new google.maps.Size(40, 40)
             }
-        }
-        return cookieValue;
+        });
+    }
+
+    function calculateDistance(lat1, lng1, lat2, lng2) {
+        const R = 6371; // Radius of the Earth in km
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLng = (lng2 - lng1) * Math.PI / 180;
+        const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                  Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                  Math.sin(dLng / 2) * Math.sin(dLng / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return R * c;
+    }
+
+    function handleLocationError(browserHasGeolocation, pos) {
+        infowindow.setPosition(pos);
+        infowindow.setContent(browserHasGeolocation ?
+            'Error: The Geolocation service failed.' :
+            'Error: Your browser doesn\'t support geolocation.');
+        infowindow.open(map);
     }
 
     window.initMap = initMap;
