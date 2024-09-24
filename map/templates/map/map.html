@@ -152,15 +152,14 @@
                     infowindow.open(map, marker);
 
                     // Add click listener to the "Favorite" button
-                    google.maps.event.addListener(marker, "click", () => {
-                    service.getDetails(request, (placeDetails, status) => {
-                        if (status === google.maps.places.PlacesServiceStatus.OK && placeDetails) {
-                            const lat = placeDetails.geometry.location.lat();
-                            const lng = placeDetails.geometry.location.lng();
-
-                            favoriteRestaurant(placeDetails.place_id, placeDetails.name, placeDetails.formatted_address, lat, lng);
-                        }
-                    });
+                   google.maps.event.addListener(marker, "click", () => {
+                   service.getDetails(request, (placeDetails, status) => {
+                       if (status === google.maps.places.PlacesServiceStatus.OK && placeDetails) {
+                           const lat = placeDetails.geometry.location.lat();
+                           const lng = placeDetails.geometry.location.lng();
+                           favoriteRestaurant(placeDetails.place_id, placeDetails.name, placeDetails.formatted_address, lat, lng);
+                       }
+                   });
                 });
                 } else {
                     console.log("Failed to get place details: ", status);
@@ -202,34 +201,37 @@
     }
 
     function favoriteRestaurant(placeId, name, address) {
-        const csrfToken = getCookie('csrftoken');  // Retrieve CSRF token from cookies
+       const csrfToken = getCookie('csrftoken');  // Retrieve CSRF token from cookies
 
-        // Data to send to the backend
-        const formData = new FormData();
-        formData.append('place_id', placeId);
-        formData.append('name', name);
-        formData.append('address', address);
-        formData.append('lat', lat);
-        formData.append('lng', lng);
 
-        // Send a POST request to your Django backend
-        fetch('/favorite-restaurant/', {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': csrfToken
-            },
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert(`${name} has been added to your favorites!`);
-            } else {
-                alert('Error: Could not add to favorites.');
-            }
-        })
-        .catch(error => console.error('Error:', error));
+       // Data to send to the backend
+       const formData = new FormData();
+       formData.append('place_id', placeId);
+       formData.append('name', name);
+       formData.append('address', address);
+       formData.append('lat', lat);
+       formData.append('lng', lng);
+
+
+       // Send a POST request to your Django backend
+       fetch('/favorite-restaurant/', {
+           method: 'POST',
+           headers: {
+               'X-CSRFToken': csrfToken
+           },
+           body: formData
+       })
+       .then(response => response.json())
+       .then(data => {
+           if (data.success) {
+               alert(`${name} has been added to your favorites!`);
+           } else {
+               alert('Error: Could not add to favorites.');
+           }
+       })
+       .catch(error => console.error('Error:', error));
     }
+
 
     window.initMap = initMap;
 </script>
