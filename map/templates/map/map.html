@@ -239,7 +239,20 @@
 <div class="pageholder">
     <div class="linkholder">
         <div class="mapholder">
-            {% include 'map/overlay.html' %}
+                <div class="frame1">
+                    <div class="search-bar">
+                        <form action="{% url 'search' %}" method="GET">
+                            <input type="text" name = "query" placeholder="Search..." class="search-input">
+                            <button class="search-icon">🔎︎</button>
+                        </form>
+                    </div>
+                    {% if not request.user.is_authenticated %}
+                        <a class="login" href="{% url 'login' %}">Login</a>
+                    {% else %}
+                        <a class="login" href="{% url 'logout' %}">Log Out</a>
+                        <button class="account-button" onclick='openSidebar("*FAVES*")'>Account</button> <!-- should be a var -->
+                    {% endif %}
+                </div>
             <div id="map"></div>
             <script
                 src="https://maps.googleapis.com/maps/api/js?key={{ key }}&callback=initMap&libraries=places"
