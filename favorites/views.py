@@ -1,10 +1,32 @@
-from django.shortcuts import render
-from .models import Favorite
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required
+from .models import Restaurant, UserProfile
 
-# Create your views here.
+@login_required
+@csrf_exempt
+def favorite_restaurant(request):
+    if request.method == 'POST':
+        place_id = request.POST.get('place_id')
+        name = request.POST.get('name')
+        address = request.POST.get('address')
+        lat = request.POST.get('lat')
+        lng = request.POST.get('lng')
 
+        if not lat or not lng:
+            return JsonResponse({'error': 'Missing latitude or longitude'}, status=400)
 
-def favorites(request):
-    faves = Favorite.objects.all()
-    context = {'faves': faves}
-    return render(request, 'favorites/favorites.html', context)
+        # Check if the restaurant already exists, if not, create it
+        restaurant, created = Restaurant.objects.get_or_create(
+            place_id=place_id,
+            defaults={'name': name, 'address': address, 'lat': lat, 'lng': lng}
+        )
+
+        # Associate the restaurant with the user's favorites
+        user_profile = UserProfile.objects.get(user=request.user)
+        user_profile.restaurant = restaurant
+        user_profile.save()
+
+        return JsonResponse({'success': True})
+
+    return JsonResponse({'success': False, 'error': 'Invalid request'})
