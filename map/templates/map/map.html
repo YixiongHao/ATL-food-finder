@@ -117,6 +117,7 @@
                             address: results[i].formatted_address,
                             geometry: results[i].geometry,
                             place_id: results[i].place_id,
+                            cuisine_type: results[i].type
                         });
                     }
 
@@ -215,13 +216,13 @@
                         placeDetails.geometry.location.lng()
                     ).toFixed(2);
 
-                    let cuisineType = '';
-                    if (placeDetails.types && placeDetails.types.length > 0) {
+                    let cuisineType = placeDetails.types;
+                    /*if (placeDetails.types && placeDetails.types.length > 0) {
                         cuisineType = placeDetails.types
                             .filter(type => type.includes('restaurant') || type.includes('food'))
                             .map(type => type.replace('_', ' '))
                             .join(', ');
-                    }
+                    }*/
 
                     const content = `
                         <strong>${placeDetails.name}</strong><br>
