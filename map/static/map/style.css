@@ -13,18 +13,6 @@
     height: 100%;
 }
 
-.login {
-    float: right;
-    margin: 5px;
-    padding: 8px;
-    background-color: lightgrey;
-    border-radius: 10px;
-    position: absolute;
-    right: 60px;
-    top: 5px;
-    z-index: 1;
-}
-
 /*
  * Optional: Makes the sample page fill the window.
  */
