@@ -1,0 +1,162 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results</title>
+    <link rel="stylesheet" href="{% static 'map/styles.css' %}">
+    <script>
+        function closeSidebar(){
+            document.getElementById('sidebar').style.display = 'none';
+        }
+
+        function openSidebar(term){
+            // use search term OR pass in keyword (*FAVES*) to open to favorites
+            var header = document.getElementsByClassName("model-header")[0];
+            if (term === "*FAVES*") {
+                header.innerHTML = "<h2>Favorites</h2>"
+                populateSidebar([]);
+            } else {
+                header.innerHTML = "<h2>Search Results</h2>"
+                populateSidebar([dummyRestaurant]);
+            }
+            document.getElementById('sidebar').style.display = 'block';
+        }
+
+        let dummyRestaurant = {};
+        dummyRestaurant.name = "Restaurant Name";
+        dummyRestaurant.distance = "2.5mi";
+        dummyRestaurant.rating = 5;
+        dummyRestaurant.cuisine = "Italian"
+        dummyRestaurant.description = "A cozy Italian restaurant with authentic cuisine."
+
+        // currently populating the cards is handled with a django view
+        // however, it might be easier to do it w a javascript function
+        function populateSidebar(restaurantList) {
+            let results = document.getElementsByClassName("results")[0];
+            results.innerHTML = "";
+            for (i = 0; i < restaurantList.length; i++) {
+                let restaurant = restaurantList[i];
+                let result = document.createElement("div");
+                result.classList.add("result-card");
+                result.innerHTML = '<div class="result-header"> <h3>' + restaurant.name +
+                    '</h3><span class="distance">' + restaurant.distance +
+                    '</span></div><div class="result-details"><div class="rating"><span>' + restaurant.rating +
+                    '</span><div class="stars"></div></div><span class="cuisine">' + restaurant.cuisine +
+                    '</span></div><p class="description">' + restaurant.description + '</p><button class="favorite-button">♡</button></div>';
+
+                let starHTML = "";
+                for (i = 0; i < 5; i++){
+                    if (i <= restaurant.rating) {
+                        starHTML += '<span class = "star filled"></span>'
+                    } else {
+                        starHTML += '<span class = "star"></span>'
+                    }
+                }
+                result.querySelector(".stars").innerHTML = starHTML;
+                results.appendChild(result);
+            }
+        }
+
+        // favorite button behavior needs to be implemented ♡❤
+    </script>
+</head>
+<body>
+    <div class="frame1">
+        <div class="search-bar">
+            <input type="text" placeholder="Search..." class="search-input">
+            <button class="search-icon" onclick="openSidebar()">🔎︎</button>
+        </div>
+        {% if not request.user.is_authenticated %}
+            <a class="login" href="{% url 'login' %}">Login</a>
+        {% else %}
+            <a class="login" href="{% url 'logout' %}">Log Out</a>
+            <button class="account-button" onclick='openSidebar("*FAVES*")'>Account</button> <!-- should be a var -->
+        {% endif %}
+    </div>
+    <div class="sidebar-search" id = "sidebar">
+        <div class="model">
+            <button class="close-button" onclick="closeSidebar()">⨉</button>
+            <div class="model-header"></div>
+            <div class="filter-section">
+                <h3>Distance</h3>
+                <div class="radio-group">
+                    <label class="radio">
+                        <input type="radio" name="distance" value="none" checked>
+                        <span>None</span>
+                    </label>
+                    <label class="radio">
+                        <input type="radio" name="distance" value="20">
+                        <span><20 mi</span>
+                    </label>
+                    <label class="radio">
+                        <input type="radio" name="distance" value="10">
+                        <span><10 mi</span>
+                    </label>
+                    <label class="radio">
+                        <input type="radio" name="distance" value="5">
+                        <span><5 mi</span>
+                    </label>
+                    <label class="radio">
+                        <input type="radio" name="distance" value="1">
+                        <span><1 mi</span>
+                    </label>
+                </div>
+            </div>
+            <div class="filter-section">
+                <h3>Rating</h3>
+                <div class="radio-group">
+                    <label class="radio">
+                        <input type="radio" name="rating" value="none" checked>
+                        <span>None</span>
+                    </label>
+                    <label class="radio">
+                        <input type="radio" name="rating" value="1">
+                        <span>>1</span>
+                    </label>
+                    <label class="radio">
+                        <input type="radio" name="rating" value="2">
+                        <span>>2</span>
+                    </label>
+                    <label class="radio">
+                        <input type="radio" name="rating" value="3">
+                        <span>>3</span>
+                    </label>
+                    <label class="radio">
+                        <input type="radio" name="rating" value="4">
+                        <span>>4</span>
+                    </label>
+                    <label class="radio">
+                        <input type="radio" name="rating" value="5">
+                        <span>>5</span>
+                    </label>
+                </div>
+            </div>
+            <div class="results">
+                {% for result in search_results %}
+                    <div class="result-card">
+                        <div class="result-header">
+                            <h3>{{ result.name }}</h3>
+                            <span class="distance">{{ result.distance }}</span>
+                        </div>
+                        <div class="result-details">
+                            <div class="rating">
+                                <span>{{ result.rating }}</span>
+                                <div class="stars">
+                                    {% for i in "12345"|make_list %}
+                                        <span class="star {% if forloop.counter <= result.rating %}filled{% endif %}"></span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <span class="cuisine">{{ result.cuisine }}</span>
+                        </div>
+                        <p class="description">{{ result.description }}</p>
+                        <button class="favorite-button">♡</button> <!-- or ❤︎ if favorited -->
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>

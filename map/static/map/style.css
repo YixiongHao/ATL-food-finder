@@ -13,19 +13,7 @@
  * Important tag is needed to make sure map fits screen.
  */
 #map {
-    height: 100% !important;
-}
-
-.login {
-    float: right;
-    margin: 5px;
-    padding: 8px;
-    background-color: lightgrey;
-    border-radius: 10px;
-    position: absolute;
-    right: 60px;
-    top: 5px;
-    z-index: 1;
+    height: 100%;
 }
 
 /*

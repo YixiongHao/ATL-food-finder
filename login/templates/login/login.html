@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Modal</title>
+    <title>Log-In</title>
     <style>
         /* Reset some default styles */
         * {
@@ -148,7 +148,9 @@
             <div class="modal">
                 <div class="modal-header">
                     <h2 class="modal-title">Log in</h2>
-                    <button class="close-button">&times;</button>
+                    <form action="{% url 'map' %}" method="get">
+                        <button class="close-button">&times;</button>
+                    </form>
                 </div>
                 <div class="modal-content">
                     <p>Log in to see your saved places!</p>

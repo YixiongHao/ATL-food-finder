@@ -2,8 +2,6 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-
-    path('add/', views.add_restaurant, name='add_restaurant'),
-    path('details/', views.restaurant_list, name='restaurant_list'),
-
+    path('save-restaurants/', views.SaveRestaurantsView.as_view(), name='save_restaurants'), #for creating restaurant database
+    path('details/<str:place_id>/', views.restaurant_detail, name='details'),   # for generating restaurant details page
 ]
