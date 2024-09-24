@@ -1,17 +1,64 @@
-<!-- restaurant_detail.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ restaurant.name }} Details</title>
+    <style>
+        #mini-map {
+            height: 300px;
+            width: 100%;
+        }
+    </style>
 </head>
 <body>
     <h1>{{ restaurant.name }}</h1>
     <p><strong>Address:</strong> {{ restaurant.address }}</p>
     <p><strong>Location:</strong> Latitude {{ restaurant.lat }}, Longitude {{ restaurant.lng }}</p>
-    <!-- Add more fields as necessary -->
-    
+
+    <p><strong>Rating:</strong> {{ restaurant.rating }}</p>
+
+    <h2>Reviews:</h2>
+    {% if restaurant.reviews %}
+        <ul>
+            {% for review in restaurant.reviews %}
+                <li><strong>{{ review.author_name }}</strong>: {{ review.text }}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No reviews available</p>
+    {% endif %}
+
+    <!-- Mini Map -->
+    <h2>Location Map:</h2>
+    <div id="mini-map"></div>
+
+    <!-- Google Maps Directions Link -->
+    <h2>Get Directions:</h2>
+    <a href="https://www.google.com/maps/dir/?api=1&destination={{ restaurant.lat }},{{ restaurant.lng }}" target="_blank">
+        Get Directions on Google Maps
+    </a>
+
     <a href="{% url 'map' %}">Back to Home</a>
+
+    <script>
+        function initMiniMap() {
+            var location = {lat: {{ restaurant.lat }}, lng: {{ restaurant.lng }} };
+            var map = new google.maps.Map(document.getElementById('mini-map'), {
+                zoom: 15,
+                center: location
+            });
+            var marker = new google.maps.Marker({
+                position: location,
+                map: map
+            });
+        }
+
+        // Load Google Maps Script
+        const script = document.createElement('script');
+        script.src = `https://maps.googleapis.com/maps/api/js?key={{ key }}&callback=initMiniMap`;
+        script.defer = true;
+        document.head.appendChild(script);
+    </script>
 </body>
 </html>
