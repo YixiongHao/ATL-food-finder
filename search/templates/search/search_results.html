@@ -25,23 +25,23 @@
                 <div class="radio-group">
                     <label class="radio">
                         <input type="radio" name="distance" value="none" checked>
-                        <span>None</span>
+                        <span>Any</span>
                     </label>
                     <label class="radio">
                         <input type="radio" name="distance" value="20">
-                        <span><20 mi</span>
+                        <span><1 mi</span>
                     </label>
                     <label class="radio">
                         <input type="radio" name="distance" value="10">
-                        <span><10 mi</span>
-                    </label>
-                    <label class="radio">
-                        <input type="radio" name="distance" value="5">
                         <span><5 mi</span>
                     </label>
                     <label class="radio">
+                        <input type="radio" name="distance" value="5">
+                        <span><10 mi</span>
+                    </label>
+                    <label class="radio">
                         <input type="radio" name="distance" value="1">
-                        <span><1 mi</span>
+                        <span><20 mi</span>
                     </label>
                 </div>
             </div>
@@ -50,15 +50,15 @@
                 <div class="radio-group">
                     <label class="radio">
                         <input type="radio" name="rating" value="none" checked>
-                        <span>None</span>
+                        <span>Any</span>
                     </label>
                     <label class="radio">
                         <input type="radio" name="rating" value="1">
-                        <span>>1</span>
+                        <span>>5</span>
                     </label>
                     <label class="radio">
                         <input type="radio" name="rating" value="2">
-                        <span>>2</span>
+                        <span>>4</span>
                     </label>
                     <label class="radio">
                         <input type="radio" name="rating" value="3">
@@ -66,11 +66,11 @@
                     </label>
                     <label class="radio">
                         <input type="radio" name="rating" value="4">
-                        <span>>4</span>
+                        <span>>2</span>
                     </label>
                     <label class="radio">
                         <input type="radio" name="rating" value="5">
-                        <span>>5</span>
+                        <span>>1</span>
                     </label>
                 </div>
             </div>
@@ -79,7 +79,7 @@
                     <div class="result-card">
                         <div class="result-header">
                             <h3>{{ place.displayName.text }}</h3>
-                            <span class="distance"></span>
+                            <span class="distance">Distance</span>
                         </div>
                         <div class="result-details">
                             <div class="rating">
@@ -90,10 +90,10 @@
                                     {% endfor %}
                                 </div>
                             </div>
-                            <span class="cuisine"></span>
+                            <span class="cuisine">Cuisine</span>
                         </div>
-                        <p class="description">{{ place.formattedAddress }}</p>
                         <button class="favorite-button">♡</button> <!-- or ❤︎ if favorited -->
+                        <p class="description">{{ place.formattedAddress }}</p>
                     </div>
                 {% empty %}
                     <p>No restaurants found nearby.</p>

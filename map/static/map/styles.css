@@ -56,11 +56,12 @@ body {
 .search-bar {
     display: inline-flex;
     align-items: center;
-    width: 360px;
+    width: 287px;
     height: var(--button-height);
     background-color: #ECE6F0;
     border-radius: 28px;
     padding: 4px;
+    position: absolute;
 }
 
 .search-input {
@@ -70,6 +71,7 @@ body {
     padding: 0 16px;
     font-size: 16px;
     color: var(--text-color);
+    margin-top: 25px;
 }
 
 .search-icon, .close-button, .favorite-button {
