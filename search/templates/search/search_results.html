@@ -1,20 +1,109 @@
 {% extends 'map/base.html' %}
 {% block content %}
 
-<div id="map" style="height: 500px; width: 100%;"></div>
-    
-<h1>Nearby Restaurants</h1>
-<ul>
-{% for place in results %}
-    <li>
-        <h2>{{ place.displayName.text }}</h2>
-        <p>Address: {{ place.formattedAddress }}</p>
-        <p>Rating: {{ place.rating }}</p>
-    </li>
-{% empty %}
-    <li>No restaurants found nearby.</li>
-{% endfor %}
-</ul>
+<div>
+    <div class="frame1">
+        <div class="search-bar">
+            <form action="{% url 'search' %}" method="GET">
+            <input type="text" name = "query" placeholder="Search..." class="search-input">
+            <button type = "submit" class = "search-icon">🔎︎</button>
+            </form>
+        </div>
+        {% if not request.user.is_authenticated %}
+            <a class="login" href="{% url 'login' %}">Login</a>
+        {% else %}
+            <a class="login" href="{% url 'logout' %}">Log Out</a>
+            <button class="account-button" onclick='openSidebar("*FAVES*")'>Account</button> <!-- should be a var -->
+        {% endif %}
+    </div>
+    <div class="sidebar-search" id = "sidebar">
+        <div class="model">
+            <button class="close-button" onclick="closeSidebar()">⨉</button>
+            <div class="model-header"></div>
+            <div class="filter-section">
+                <h3>Distance</h3>
+                <div class="radio-group">
+                    <label class="radio">
+                        <input type="radio" name="distance" value="none" checked>
+                        <span>None</span>
+                    </label>
+                    <label class="radio">
+                        <input type="radio" name="distance" value="20">
+                        <span><20 mi</span>
+                    </label>
+                    <label class="radio">
+                        <input type="radio" name="distance" value="10">
+                        <span><10 mi</span>
+                    </label>
+                    <label class="radio">
+                        <input type="radio" name="distance" value="5">
+                        <span><5 mi</span>
+                    </label>
+                    <label class="radio">
+                        <input type="radio" name="distance" value="1">
+                        <span><1 mi</span>
+                    </label>
+                </div>
+            </div>
+            <div class="filter-section">
+                <h3>Rating</h3>
+                <div class="radio-group">
+                    <label class="radio">
+                        <input type="radio" name="rating" value="none" checked>
+                        <span>None</span>
+                    </label>
+                    <label class="radio">
+                        <input type="radio" name="rating" value="1">
+                        <span>>1</span>
+                    </label>
+                    <label class="radio">
+                        <input type="radio" name="rating" value="2">
+                        <span>>2</span>
+                    </label>
+                    <label class="radio">
+                        <input type="radio" name="rating" value="3">
+                        <span>>3</span>
+                    </label>
+                    <label class="radio">
+                        <input type="radio" name="rating" value="4">
+                        <span>>4</span>
+                    </label>
+                    <label class="radio">
+                        <input type="radio" name="rating" value="5">
+                        <span>>5</span>
+                    </label>
+                </div>
+            </div>
+            <div class = "results">
+                {% for place in results %}
+                    <div class="result-card">
+                        <div class="result-header">
+                            <h3>{{ place.displayName.text }}</h3>
+                            <span class="distance"></span>
+                        </div>
+                        <div class="result-details">
+                            <div class="rating">
+                                <span>{{ place.rating }}</span>
+                                <div class = "stars">
+                                    {% for i in "12345" %}
+                                        <span class="star {% if forloop.counter <= place.rating %}filled{% endif %}"></span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <span class="cuisine"></span>
+                        </div>
+                        <p class="description">{{ place.formattedAddress }}</p>
+                        <button class="favorite-button">♡</button> <!-- or ❤︎ if favorited -->
+                    </div>
+                {% empty %}
+                    <p>No restaurants found nearby.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <div id="map"></div>
+
+</div>
     
 <script>
     let map;
@@ -80,6 +169,27 @@
     }
 
     window.initMap = initMap;
+</script>
+
+    <script>
+    function closeSidebar(){
+        document.getElementById('sidebar').style.display = 'none';
+    }
+
+    function openSidebar(term){
+        // use search term OR pass in keyword (*FAVES*) to open to favorites
+        var header = document.getElementsByClassName("model-header")[0];
+        if (term === "*FAVES*") {
+            header.innerHTML = "<h2>Favorites</h2>"
+        } else {
+            header.innerHTML = "<h2>Search Results</h2>"
+        }
+        document.getElementById('sidebar').style.display = 'block';
+    }
+
+    // favorite button behavior needs to be implemented ♡❤
+
+    document.addEventListener("DOMContentLoaded", openSidebar());
 </script>
 
 <script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&callback=initMap" async defer></script>
