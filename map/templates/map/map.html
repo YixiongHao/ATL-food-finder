@@ -48,7 +48,7 @@
                         if (status === google.maps.places.PlacesServiceStatus.OK && results) {
                             for (let i = 0; i < results.length; i++) {
                                 createMarker(results[i]);
-                                restaurantsData.push({  // Create Restaurant model for each search result
+                                restaurantsData.push({
                                     name: results[i].name,
                                     address: results[i].formatted_address,
                                     geometry: results[i].geometry,
@@ -58,7 +58,7 @@
 
                             const formData = new FormData();
                             restaurantsData.forEach(restaurant => {
-                                formData.append('restaurants', JSON.stringify(restaurant)); // Append each restaurant as a JSON string
+                                formData.append('restaurants', JSON.stringify(restaurant));
                             });
 
                             // Send restaurant data to Django backend
@@ -93,7 +93,6 @@
             handleLocationError(false, fallbackLocation);
         }
 
-        // Initialize map in the center of Atlanta
         const atlantaCenter = new google.maps.LatLng(33.7488, -84.3877);
         map = new google.maps.Map(document.getElementById('map'), {
             zoom: 11,
@@ -102,21 +101,18 @@
 
         infowindow = new google.maps.InfoWindow();
 
-        // Iterate over every food/drink type to obtain all search results
-        // TODO: max of 20 restaurants from each search result. How do we get more?
         service = new google.maps.places.PlacesService(map);
         for (let i = 0; i < searches.length; i++) {
             const request = {
                 query: searches[i],
                 location: atlantaCenter,
-
             };
-            const restaurantsData = []; // This list is populated with Restaurant models
+            const restaurantsData = [];
             service.textSearch(request, (results, status) => {
                 if (status === google.maps.places.PlacesServiceStatus.OK && results) {
                     for (let i = 0; i < results.length; i++) {
                         createMarker(results[i]);
-                        restaurantsData.push({  // Create Restaurant model for each search result
+                        restaurantsData.push({
                             name: results[i].name,
                             address: results[i].formatted_address,
                             geometry: results[i].geometry,
@@ -126,14 +122,13 @@
 
                     const formData = new FormData();
                     restaurantsData.forEach(restaurant => {
-                        formData.append('restaurants', JSON.stringify(restaurant)); // Append each restaurant as a JSON string
+                        formData.append('restaurants', JSON.stringify(restaurant));
                     });
 
-                    // Send restaurant data to Django backend
                     fetch('/save-restaurants/', {
                         method: 'POST',
                         headers: {
-                            'X-CSRFToken': getCookie('csrftoken')  // Use a function to get CSRF token
+                            'X-CSRFToken': getCookie('csrftoken')
                         },
                         body: formData
                     })
@@ -146,28 +141,25 @@
         }
     }
 
-    // Function to add a special marker for the user's current location
     function addUserLocationMarker(location) {
         userLocationMarker = new google.maps.Marker({
             position: location,
             map: map,
             title: "You are here",
             icon: {
-                url: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png",  // A blue dot for user's location
-                scaledSize: new google.maps.Size(40, 40)  // Resize the marker icon
+                url: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png",
+                scaledSize: new google.maps.Size(40, 40)
             }
         });
 
-        // Open an info window when the user clicks on their location marker
         google.maps.event.addListener(userLocationMarker, "click", () => {
             infowindow.setContent("You are here");
             infowindow.open(map, userLocationMarker);
         });
     }
 
-    // Function to calculate the distance between two geographic points using the Haversine formula
     function calculateDistance(lat1, lng1, lat2, lng2) {
-        const R = 6371; // Radius of the Earth in kilometers
+        const R = 6371;
         const dLat = (lat2 - lat1) * Math.PI / 180;
         const dLng = (lng2 - lng1) * Math.PI / 180;
         const a =
@@ -175,7 +167,7 @@
             Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
             Math.sin(dLng / 2) * Math.sin(dLng / 2);
         const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        const distance = R * c; // Distance in kilometers
+        const distance = R * c;
         return distance;
     }
 
@@ -200,22 +192,13 @@
         });
 
         google.maps.event.addListener(marker, "click", () => {
-            // Use Place Details API to get more information about the place
             const request = {
                 placeId: place.place_id,
-                fields: ['name', 'formatted_address', 'rating', 'reviews', 'geometry']
+                fields: ['name', 'formatted_address', 'rating', 'reviews', 'types', 'geometry']
             };
 
-            /*
-             * Should be included in details:
-             * Restaurant name
-             * Address
-             * Link to details page
-             * Option to add to favorites
-             */
             service.getDetails(request, (placeDetails, status) => {
                 if (status === google.maps.places.PlacesServiceStatus.OK && placeDetails) {
-                    // Prepare the reviews content
                     let reviewsContent = '';
                     if (placeDetails.reviews && placeDetails.reviews.length > 0) {
                         reviewsContent = placeDetails.reviews.slice(0, 3).map(review => `
@@ -225,26 +208,32 @@
                         reviewsContent = 'No reviews available';
                     }
 
-                    // Calculate distance between user and the marker's location
                     const distance = calculateDistance(
                         userLocation.lat,
                         userLocation.lng,
                         placeDetails.geometry.location.lat(),
                         placeDetails.geometry.location.lng()
-                    ).toFixed(2);  // Display distance up to 2 decimal places
+                    ).toFixed(2);
 
-                    // Create the content string including distance
+                    let cuisineType = '';
+                    if (placeDetails.types && placeDetails.types.length > 0) {
+                        cuisineType = placeDetails.types
+                            .filter(type => type.includes('restaurant') || type.includes('food'))
+                            .map(type => type.replace('_', ' '))
+                            .join(', ');
+                    }
+
                     const content = `
                         <strong>${placeDetails.name}</strong><br>
                         ${placeDetails.formatted_address}<br>
                         <a href="/details/${place.place_id}/">Details</a><br>
+                        <strong>Cuisine:</strong> ${cuisineType || 'Not available'}<br>
                         <strong>Rating:</strong> ${placeDetails.rating || 'No rating available'}<br>
                         <strong>Reviews:</strong><br>
                         ${reviewsContent}<br>
                         <strong>Distance from your location:</strong> ${distance} km
                     `;
 
-                    // Set content and open info window
                     infowindow.setContent(content);
                     infowindow.open(map, marker);
                 } else {
@@ -254,14 +243,12 @@
         });
     }
 
-    // Function used to obtain CSRF token
     function getCookie(name) {
         let cookieValue = null;
         if (document.cookie && document.cookie !== '') {
             const cookies = document.cookie.split(';');
             for (let i = 0; i < cookies.length; i++) {
                 const cookie = cookies[i].trim();
-                // Check if this cookie string begins with the name we want
                 if (cookie.substring(0, name.length + 1) === (name + '=')) {
                     cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
                     break;
@@ -271,7 +258,6 @@
         return cookieValue;
     }
 
-
     window.initMap = initMap;
 </script>
 
@@ -279,11 +265,10 @@
     <div class="linkholder">
         <div class="mapholder">
             {% include 'map/overlay.html' %}
-
             <div id="map"></div>
             <script
-            src="https://maps.googleapis.com/maps/api/js?key={{ key }}&callback=initMap&libraries=places"
-            defer
+                src="https://maps.googleapis.com/maps/api/js?key={{ key }}&callback=initMap&libraries=places"
+                defer
             ></script>
         </div>
     </div>
