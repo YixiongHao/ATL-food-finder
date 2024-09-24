@@ -12,6 +12,9 @@
     </style>
 </head>
 <body>
+    <!-- Back to Home link at the top -->
+    <a href="{% url 'map' %}">Back to Home</a>
+
     <h1>{{ restaurant.name }}</h1>
     <p><strong>Address:</strong> {{ restaurant.address }}</p>
     <p><strong>Location:</strong> Latitude {{ restaurant.lat }}, Longitude {{ restaurant.lng }}</p>
@@ -22,7 +25,10 @@
     {% if restaurant.reviews %}
         <ul>
             {% for review in restaurant.reviews %}
-                <li><strong>{{ review.author_name }}</strong>: {{ review.text }}</li>
+                <li>
+                    <strong>{{ review.author_name }}</strong> (Rating: {{ review.rating }}):
+                    {{ review.text }}
+                </li>
             {% endfor %}
         </ul>
     {% else %}
@@ -38,8 +44,6 @@
     <a href="https://www.google.com/maps/dir/?api=1&destination={{ restaurant.lat }},{{ restaurant.lng }}" target="_blank">
         Get Directions on Google Maps
     </a>
-
-    <a href="{% url 'map' %}">Back to Home</a>
 
     <script>
         function initMiniMap() {
