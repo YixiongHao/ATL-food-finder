@@ -97,7 +97,7 @@ body {
     border-radius: 100px;
     font-size: 22px;
     cursor: pointer;
-    margin-left: var(--padding);
+    margin-left: 300px;
 }
 
 .model {
