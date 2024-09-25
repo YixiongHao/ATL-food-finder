@@ -1,3 +1,13 @@
+<h1>Your Favorite Restaurants</h1>
+<ul>
+    {% for restaurant in saved_restaurants %}
+        <li>{{ restaurant.name }}</li>
+        <a href="/details/${restaurant.place_id}/">Details</a><br>
+    {% empty %}
+        <li>You have no favorite restaurants.</li>
+    {% endfor %}
+</ul>
+=======
 {% extends 'map/base.html' %}
 {% block content %}
 

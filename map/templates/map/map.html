@@ -132,7 +132,7 @@
                     ).toFixed(2);
 
                     const content = `
-                        <button onclick="addFavorite('${place.name}')" class="favorite-btn">Favorite</button>
+                        <button onclick="addFavorite('${place.place_id}', '${place.name}')" class="favorite-btn">Favorite</button>
                         <strong>${place.name}</strong><br>
                         ${place.formatted_address}<br>
                         <a href="/details/${place.place_id}/">Details</a><br>
@@ -188,14 +188,17 @@
         infowindow.open(map);
     }
 
-    function addFavorite(placeId) {
+    function addFavorite(placeId, name) {
         fetch(`addFavorite/`, {
             method: 'POST',
             headers: {
                 'X-CSRFToken': getCookie('csrftoken'),
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ place_id: placeId })
+            body: JSON.stringify({
+                place_id: placeId,
+                name: name
+            })
         })
         .then(response => {
             if (response.ok) {

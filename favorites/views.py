@@ -13,8 +13,9 @@ def add_favorite(request):
         if request.method == "POST":
             data = json.loads(request.body)
             place_id = data.get('place_id')
+            name = data.get('name')
             if place_id:
-                favorite, created = Favorite.objects.get_or_create(user=request.user, place_id=place_id)
+                favorite, created = Favorite.objects.get_or_create(user=request.user, place_id=place_id, name=name)
                 return JsonResponse({'success': created})  # Return success response
             else:
                 return JsonResponse({'error': 'place_id is required'}, status=469)
@@ -26,5 +27,5 @@ def add_favorite(request):
 def user_favorites(request):
     saved_restaurants = Favorite.objects.filter(user=request.user).order_by(
         'place_id')  # Or another field if you have one
-    print(saved_restaurants)
+    # print(saved_restaurants)
     return render(request, 'favorites/favorites.html', {'saved_restaurants': saved_restaurants})
