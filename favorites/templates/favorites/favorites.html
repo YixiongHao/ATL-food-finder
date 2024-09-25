@@ -1,13 +1,3 @@
-<h1>Your Favorite Restaurants</h1>
-<ul>
-    {% for restaurant in saved_restaurants %}
-        <li>{{ restaurant.name }}</li>
-        <a href="/details/${restaurant.place_id}/">Details</a><br>
-    {% empty %}
-        <li>You have no favorite restaurants.</li>
-    {% endfor %}
-</ul>
-=======
 {% extends 'map/base.html' %}
 {% block content %}
 
@@ -103,7 +93,8 @@
                             <span class="cuisine">Cuisine</span>
                         </div>
                         <button class="favorite-button">♡</button> or ❤︎ if favorited -->
-                        <p class="description">{{ restaurant.place_id }}</p>
+                        <h3>{{ restaurant.name }}</h3>
+                        <a href="/details/{{ restaurant.place_id }}/">Find More Details Here!</a>
                     </div>
                 {% empty %}
                     <p>You have no favorite restaurants</p>
@@ -202,6 +193,6 @@
     document.addEventListener("DOMContentLoaded", openSidebar("*FAVES*"));
 </script>
 
-<script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&callback=initMap" async defer></script>
+<script src="https://maps.googleapis.com/maps/api/js?key={{ key }}&callback=initMap" async defer></script>
 
 {% endblock content %}
