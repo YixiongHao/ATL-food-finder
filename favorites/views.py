@@ -26,6 +26,6 @@ def add_favorite(request):
 
 def user_favorites(request):
     saved_restaurants = Favorite.objects.filter(user=request.user).order_by(
-        'place_id')  # Or another field if you have one
+        'name')
     # print(saved_restaurants)
     return render(request, 'favorites/favorites.html', {'saved_restaurants': saved_restaurants})
