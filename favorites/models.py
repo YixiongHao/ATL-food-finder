@@ -11,5 +11,5 @@ class Favorite(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     place_id = models.CharField(max_length=255)
 
-    # class Meta:
-    #     unique_together = ('user', 'restaurant')  # Prevent duplicate favorites
+    def __str__(self):
+        return f'{self.user.username} - {self.place_id}'

@@ -140,7 +140,7 @@
                         .join(', ') : 'Not available';
 
                     const content = `
-                        <button onclick="addFavorite('${placeDetails.place_id}')" class="favorite-btn">Favorite</button>
+                        <button onclick="addFavorite('${placeDetails.name}')" class="favorite-btn">Favorite</button>
                         <strong>${placeDetails.name}</strong><br>
                         ${placeDetails.formatted_address}<br>
                         <a href="/details/${place.place_id}/">Details</a><br>
