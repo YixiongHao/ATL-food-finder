@@ -93,7 +93,8 @@ def restaurant_detail(request, place_id):
             'rating': place_details.get('rating'),
             'reviews': place_details.get('reviews', []),
             'distance': calculate_distance(user_lat, user_lng, place_details['geometry']['location']['lat'], place_details['geometry']['location']['lng']),
-        }
+        },
+        'GOOGLE_API_KEY': GOOGLE_API_KEY
     }
 
     return render(request, 'details/restaurant_detail.html', context)
