@@ -109,6 +109,8 @@
         markers.push(marker); // Add marker to global array
 
         google.maps.event.addListener(marker, 'click', () => {
+            cuisineType = cuisineType.replace('_', ' ');
+
             const request = {
                 placeId: place.place_id,
                 fields: ['name', 'formatted_address', 'rating', 'reviews', 'types', 'geometry']
