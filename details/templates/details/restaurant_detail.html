@@ -5,52 +5,111 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ restaurant.name }} Details</title>
     <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+        h1, h2 {
+            color: #2c3e50;
+        }
+
+        a {
+            text-decoration: none;
+            color: #3498db;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .container {
+            width: 90%;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
         #mini-map {
             height: 300px;
             width: 100%;
+            margin-top: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        ul li {
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        ul li strong {
+            display: block;
+            margin-bottom: 5px;
+            color: #2c3e50;
         }
     </style>
 </head>
 <body>
-    <!-- Back to Home link at the top -->
-    <a href="{% url 'map' %}">Back to Home</a>
+    <div class="container">
+        <!-- Back to Home link at the top -->
+        <a href="{% url 'map' %}">Back to Home</a>
 
-    <h1>{{ restaurant.name }}</h1>
-    <p><strong>Address:</strong> {{ restaurant.address }}</p>
-    <p><strong>Location:</strong> Latitude {{ restaurant.lat }}, Longitude {{ restaurant.lng }}</p>
+        <h1>{{ restaurant.name }}</h1>
+        <p><strong>Address:</strong> {{ restaurant.address }}</p>
+        <p><strong>Location:</strong> Latitude {{ restaurant.lat }}, Longitude {{ restaurant.lng }}</p>
+        <p><strong>Rating:</strong> {{ restaurant.rating }}</p>
 
-    <p><strong>Rating:</strong> {{ restaurant.rating }}</p>
+        <h2>Reviews:</h2>
+        {% if restaurant.reviews %}
+            <ul>
+                {% for review in restaurant.reviews %}
+                    <li>
+                        <strong>{{ review.author_name }}</strong> (Rating: {{ review.rating }}):
+                        {{ review.text }}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No reviews available</p>
+        {% endif %}
 
-    <h2>Reviews:</h2>
-    {% if restaurant.reviews %}
-        <ul>
-            {% for review in restaurant.reviews %}
-                <li>
-                    <strong>{{ review.author_name }}</strong> (Rating: {{ review.rating }}):
-                    {{ review.text }}
-                </li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>No reviews available</p>
-    {% endif %}
+        <!-- Mini Map -->
+        <h2>Location Map:</h2>
+        <div id="mini-map"></div>
 
-    <!-- Mini Map -->
-    <h2>Location Map:</h2>
-    <div id="mini-map"></div>
-
-    <!-- Google Maps Directions Link -->
-    <h2>Get Directions:</h2>
-    <a href="https://www.google.com/maps/dir/?api=1&destination={{ restaurant.lat }},{{ restaurant.lng }}" target="_blank">
-        Get Directions on Google Maps
-    </a>
+        <!-- Google Maps Directions Link -->
+        <h2>Get Directions:</h2>
+        <a href="https://www.google.com/maps/dir/?api=1&destination={{ restaurant.lat }},{{ restaurant.lng }}" target="_blank">
+            Get Directions on Google Maps
+        </a>
+    </div>
 
     <script>
         function initMiniMap() {
             var location = {lat: {{ restaurant.lat }}, lng: {{ restaurant.lng }} };
             var map = new google.maps.Map(document.getElementById('mini-map'), {
                 zoom: 15,
-                center: location
+                center: location,
+                mapTypeControl: false,
+                streetViewControl: false,
+                fullscreenControl: false
             });
             var marker = new google.maps.Marker({
                 position: location,
@@ -60,7 +119,7 @@
 
         // Load Google Maps Script
         const script = document.createElement('script');
-        script.src = `https://maps.googleapis.com/maps/api/js?key={{ key }}&callback=initMiniMap`;
+        script.src = `https://maps.googleapis.com/maps/api/js?key={{ GOOGLE_API_KEY }}&callback=initMiniMap`;
         script.defer = true;
         document.head.appendChild(script);
     </script>
