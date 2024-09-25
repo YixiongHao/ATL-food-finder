@@ -129,12 +129,12 @@
             cuisineType = cuisineType.replace('_', ' ');
 
             const content = `
-                <button id="favorite-${placeDetails.place_id}" class="favorite-btn">Favorite</button>
-                <strong>${placeDetails.name}</strong><br>
-                ${placeDetails.formatted_address}<br>
+                <button id="favorite-${place.place_id}" class="favorite-btn">Favorite</button>
+                <strong>${place.name}</strong><br>
+                ${place.formatted_address}<br>
                 <a href="/details/${place.place_id}/">Details</a><br>
                 <strong>Cuisine:</strong> ${cuisineType}<br>
-                <strong>Rating:</strong> ${placeDetails.rating || 'No rating available'}<br>
+                <strong>Rating:</strong> ${place.rating || 'No rating available'}<br>
                 <strong>Distance from your location:</strong> ${distance} km<br>
                 <strong>Reviews:</strong> ${reviewsContent}
             `;
@@ -148,13 +148,9 @@
                     placeId: place.place_id,
                     fields: ['name', 'formatted_address', 'rating', 'reviews', 'types', 'geometry']
                 };
-                service.getDetails(request, (placeDetails, status) => {
-                    if (status === google.maps.places.PlacesServiceStatus.OK && placeDetails) {
-                        const lat = place.geometry.location.lat;
-                        const lng = place.geometry.location.lng;
-                        favoriteRestaurant(placeDetails.place_id, placeDetails.name, placeDetails.formatted_address, lat, lng);
-                    }
-                });
+                const lat = place.geometry.location.lat;
+                const lng = place.geometry.location.lng;
+                favoriteRestaurant(place.place_id, place.name, place.formatted_address, lat, lng);
             });
         });
     }
@@ -191,7 +187,7 @@
         infowindow.open(map);
     }
 
-    function favoriteRestaurant(placeId, name, address) {
+    function favoriteRestaurant(placeId, name, address, lat, lng) {
         const csrfToken = getCookie('csrftoken');  // Retrieve CSRF token from cookies
 
 
@@ -205,7 +201,7 @@
 
 
         // Send a POST request to your Django backend
-        fetch('/favorite_restaurant/', {
+        fetch('/favorite-restaurant/', {
             method: 'POST',
             headers: {
                 'X-CSRFToken': csrfToken,
@@ -237,6 +233,23 @@
             .catch(error => {
                 alert(error.message); // Show the error message returned from the server
             });
+    }
+
+    // Utility function to get CSRF token
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                // Check if this cookie string begins with the name we want
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
     }
 
     window.initMap = initMap;
