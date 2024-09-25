@@ -10,6 +10,7 @@ class Restaurant(models.Model):
 class Favorite(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     place_id = models.CharField(max_length=255)
+    name = models.CharField(max_length=255)
 
     def __str__(self):
-        return f'{self.user.username} - {self.place_id}'
+        return f'{self.user.username} - {self.name} - {self.place_id}'
