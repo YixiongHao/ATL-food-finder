@@ -127,18 +127,35 @@
             ).toFixed(2);
 
             cuisineType = cuisineType.replace('_', ' ');
+
             const content = `
-                <strong>${place.name}</strong><br>
-                ${place.formatted_address}<br>
+                <button id="favorite-${placeDetails.place_id}" class="favorite-btn">Favorite</button>
+                <strong>${placeDetails.name}</strong><br>
+                ${placeDetails.formatted_address}<br>
                 <a href="/details/${place.place_id}/">Details</a><br>
                 <strong>Cuisine:</strong> ${cuisineType}<br>
-                <strong>Rating:</strong> ${place.rating || 'No rating available'}<br>
+                <strong>Rating:</strong> ${placeDetails.rating || 'No rating available'}<br>
                 <strong>Distance from your location:</strong> ${distance} km<br>
                 <strong>Reviews:</strong> ${reviewsContent}
             `;
 
             infowindow.setContent(content);
             infowindow.open(map, marker);
+
+            google.maps.event.addListener(marker, "click", () => {
+                service = new google.maps.places.PlacesService(map);
+                const request = {
+                    placeId: place.place_id,
+                    fields: ['name', 'formatted_address', 'rating', 'reviews', 'types', 'geometry']
+                };
+                service.getDetails(request, (placeDetails, status) => {
+                    if (status === google.maps.places.PlacesServiceStatus.OK && placeDetails) {
+                        const lat = place.geometry.location.lat;
+                        const lng = place.geometry.location.lng;
+                        favoriteRestaurant(placeDetails.place_id, placeDetails.name, placeDetails.formatted_address, lat, lng);
+                    }
+                });
+            });
         });
     }
 
@@ -174,13 +191,74 @@
         infowindow.open(map);
     }
 
+    function favoriteRestaurant(placeId, name, address) {
+        const csrfToken = getCookie('csrftoken');  // Retrieve CSRF token from cookies
+
+
+        // Data to send to the backend
+        const formData = new FormData();
+        formData.append('place_id', placeId);
+        formData.append('name', name);
+        formData.append('address', address);
+        formData.append('lat', lat);
+        formData.append('lng', lng);
+
+
+        // Send a POST request to your Django backend
+        fetch('/favorite_restaurant/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrfToken,
+                'Content-Type': 'application/json' // Make sure to set the content type if sending JSON
+            },
+            body: JSON.stringify({
+                place_id: placeId, // replace with the actual variable containing place ID
+                name: name,
+                address: address,
+                lat: lat,
+                lng: lng
+            })
+        })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(data => {
+                        throw new Error(data.error); // Throw an error to handle it later
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    alert(`${name} has been added to your favorites!`);
+                } else {
+                    alert('Error: Could not add to favorites.');
+                }
+            })
+            .catch(error => {
+                alert(error.message); // Show the error message returned from the server
+            });
+    }
+
     window.initMap = initMap;
 </script>
 
 <div class="pageholder">
     <div class="linkholder">
         <div class="mapholder">
-            {% include 'map/overlay.html' %}
+            <div class="frame1">
+                    <div class="search-bar">
+                        <form action="{% url 'search' %}" method="GET">
+                            <input type="text" name = "query" placeholder="Search..." class="search-input">
+                            <button class="search-icon">🔎︎</button>
+                        </form>
+                    </div>
+                    {% if not request.user.is_authenticated %}
+                        <a class="login" href="{% url 'login' %}">Login</a>
+                    {% else %}
+                        <a class="login" href="{% url 'logout' %}">Log Out</a>
+                        <button class="account-button" onclick='openSidebar("*FAVES*")'>Account</button> <!-- should be a var -->
+                    {% endif %}
+                </div>
             <div id="map"></div>
             <script
                 src="https://maps.googleapis.com/maps/api/js?key={{ key }}&callback=initMap&libraries=places"

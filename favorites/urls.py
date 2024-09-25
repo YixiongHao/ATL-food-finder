@@ -1,6 +1,8 @@
 from django.urls import path
-from . import views
+from .views import favorite_restaurant
+from .views import user_favorites
 
 urlpatterns = [
-    path('favorites/', views.favorites, name='favorites'),
+    path('favorite-restaurant/', favorite_restaurant, name='favorite_restaurant'),
+    path('favorites/', user_favorites, name='user_favorites'),
 ]
