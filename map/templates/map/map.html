@@ -17,7 +17,6 @@
     'pizza_restaurant', 'ramen_restaurant', 'restaurant', 'sandwich_shop', 'seafood_restaurant', 'spanish_restaurant',
     'steak_house', 'sushi_restaurant', 'thai_restaurant', 'turkish_restaurant', 'vegan_restaurant', 'vegetarian_restaurant',
     'vietnamese_restaurant'];
-    let key = '{{ key }}';
 
     function initMap() {
         if (navigator.geolocation) {
@@ -74,18 +73,18 @@
         }
 
         for (let i = 0; i < searches.length; i++) {
-            const url = `/search/?query=${encodeURIComponent(searches[i])}&location=${encodeURIComponent(userLocation)}&radius=${radius}`;
-
-            fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.results) {
-                        data.results.forEach(place => {
-                            createMarker(place, searches[i]);
-                        });
+            const request = {
+                query: searches[i],
+                location: userLocation,
+                radius: radius // Use dynamic radius
+            };
+            service.textSearch(request, (results, status) => {
+                if (status === google.maps.places.PlacesServiceStatus.OK && results) {
+                    for (let j = 0; j < results.length; j++) {
+                        createMarker(results[j]);
                     }
-                })
-                .catch(error => console.error('Error:', error));
+                }
+            });
         }
     }
 
@@ -122,19 +121,22 @@
             const distance = calculateDistance(
                 userLocation.lat,
                 userLocation.lng,
-                place.geometry.location.lat,
-                place.geometry.location.lng
+                placeDetails.geometry.location.lat(),
+                placeDetails.geometry.location.lng()
             ).toFixed(2);
 
-            cuisineType = cuisineType.replace('_', ' ');
+            const cuisineType = placeDetails.types ? placeDetails.types
+                .filter(type => type.includes('restaurant') || type.includes('food'))
+                .map(type => type.replace('_', ' '))
+                .join(', ') : 'Not available';
 
             const content = `
-                <button id="favorite-${place.place_id}" class="favorite-btn">Favorite</button>
-                <strong>${place.name}</strong><br>
-                ${place.formatted_address}<br>
+                <button id="favorite-${placeDetails.place_id}" class="favorite-btn">Favorite</button>
+                <strong>${placeDetails.name}</strong><br>
+                ${placeDetails.formatted_address}<br>
                 <a href="/details/${place.place_id}/">Details</a><br>
                 <strong>Cuisine:</strong> ${cuisineType}<br>
-                <strong>Rating:</strong> ${place.rating || 'No rating available'}<br>
+                <strong>Rating:</strong> ${placeDetails.rating || 'No rating available'}<br>
                 <strong>Distance from your location:</strong> ${distance} km<br>
                 <strong>Reviews:</strong> ${reviewsContent}
             `;
@@ -142,15 +144,11 @@
             infowindow.setContent(content);
             infowindow.open(map, marker);
 
+            // Add click listener to the "Favorite" button
             google.maps.event.addListener(marker, "click", () => {
-                service = new google.maps.places.PlacesService(map);
-                const request = {
-                    placeId: place.place_id,
-                    fields: ['name', 'formatted_address', 'rating', 'reviews', 'types', 'geometry']
-                };
-                const lat = place.geometry.location.lat;
-                const lng = place.geometry.location.lng;
-                favoriteRestaurant(place.place_id, place.name, place.formatted_address, lat, lng);
+               const lat = place.geometry.location.lat;
+               const lng = place.geometry.location.lng;
+               favoriteRestaurant(place.place_id, place.name, place.formatted_address, lat, lng);
             });
         });
     }
@@ -187,7 +185,7 @@
         infowindow.open(map);
     }
 
-    function favoriteRestaurant(placeId, name, address, lat, lng) {
+    function favoriteRestaurant(placeId, name, address) {
         const csrfToken = getCookie('csrftoken');  // Retrieve CSRF token from cookies
 
 
@@ -201,7 +199,7 @@
 
 
         // Send a POST request to your Django backend
-        fetch('/favorite-restaurant/', {
+        fetch('/favorite_restaurant/', {
             method: 'POST',
             headers: {
                 'X-CSRFToken': csrfToken,
@@ -235,21 +233,21 @@
             });
     }
 
-    // Utility function to get CSRF token
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                // Check if this cookie string begins with the name we want
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
+    function addFavorite(placeId) {
+        fetch(`addFavorite/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ place_id: placeId })
+        })
+        .then(response => {
+            if (response.ok) {
+                alert('Added to favorites!');
+                // Optionally update the UI
             }
-        }
-        return cookieValue;
+        });
     }
 
     window.initMap = initMap;
@@ -258,7 +256,7 @@
 <div class="pageholder">
     <div class="linkholder">
         <div class="mapholder">
-            <div class="frame1">
+                <div class="frame1">
                     <div class="search-bar">
                         <form action="{% url 'search' %}" method="GET">
                             <input type="text" name = "query" placeholder="Search..." class="search-input">
