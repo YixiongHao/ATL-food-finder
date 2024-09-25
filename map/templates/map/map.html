@@ -241,7 +241,7 @@
                         <a class="login" href="{% url 'login' %}">Login</a>
                     {% else %}
                         <a class="login" href="{% url 'logout' %}">Log Out</a>
-                        <button class="account-button" onclick='openSidebar("*FAVES*")'>Account</button> <!-- should be a var -->
+                        <button class="account-button" onclick=window.location.href="{% url 'favorites' %}">Account</button>
                     {% endif %}
                 </div>
             <div id="map"></div>
