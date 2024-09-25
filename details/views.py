@@ -1,6 +1,5 @@
 from django.http import JsonResponse
 from django.views import View
-from django.conf import settings
 
 from ATL_food_finder import settings
 from .models import Restaurant
@@ -13,7 +12,7 @@ import requests
 lock = threading.Lock()
 
 # Google API key
-key = settings.GOOGLE_API_KEY
+GOOGLE_API_KEY = settings.GOOGLE_API_KEY
 
 class SaveRestaurantsView(View):
     def post(self, request):
@@ -44,7 +43,7 @@ class SaveRestaurantsView(View):
 
 # Function to get restaurant details from Google Places API
 def get_place_details(place_id):
-    url = f"https://maps.googleapis.com/maps/api/place/details/json?place_id={place_id}&key={key}"
+    url = f"https://maps.googleapis.com/maps/api/place/details/json?place_id={place_id}&key={GOOGLE_API_KEY}"
     response = requests.get(url)
     if response.status_code == 200:
         return response.json().get('result')
@@ -95,7 +94,7 @@ def restaurant_detail(request, place_id):
             'reviews': place_details.get('reviews', []),
             'distance': calculate_distance(user_lat, user_lng, place_details['geometry']['location']['lat'], place_details['geometry']['location']['lng']),
         },
-        'key': key,
+        'GOOGLE_API_KEY': GOOGLE_API_KEY
     }
 
     return render(request, 'details/restaurant_detail.html', context)
