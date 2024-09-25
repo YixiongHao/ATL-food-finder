@@ -109,37 +109,43 @@
         markers.push(marker); // Add marker to global array
 
         google.maps.event.addListener(marker, 'click', () => {
-            let reviewsContent = '';
-            if (place.reviews && place.reviews.length > 0) {
-                reviewsContent = place.reviews.slice(0, 3).map(review => `
-                    <p><strong>${review.author_name}</strong>: ${review.text}</p>
-                `).join('');
-            } else {
-                reviewsContent = 'No reviews available';
-            }
+            const request = {
+                placeId: place.place_id,
+                fields: ['name', 'formatted_address', 'rating', 'reviews', 'types', 'geometry']
+            };
+            service.getDetails(request, (placeDetails, status) => {
+                if (status === google.maps.places.PlacesServiceStatus.OK && placeDetails) {
+                    let reviewsContent = '';
+                    if (placeDetails.reviews && placeDetails.reviews.length > 0) {
+                        reviewsContent = placeDetails.reviews.slice(0, 3).map(review => `
+                            <p><strong>${review.author_name}</strong>: ${review.text}</p>
+                        `).join('');
+                    } else {
+                        reviewsContent = 'No reviews available';
+                    }
 
-            const distance = calculateDistance(
-                userLocation.lat,
-                userLocation.lng,
-                place.geometry.location.lat(),
-                place.geometry.location.lng()
-            ).toFixed(2);
-            console.log(place)
-            console.log(place.geometry.location.lat());
+                    const distance = calculateDistance(
+                        userLocation.lat,
+                        userLocation.lng,
+                        place.geometry.location.lat(),
+                        place.geometry.location.lng()
+                    ).toFixed(2);
 
-            const content = `
-                <button id="favorite-${place.place_id}" class="favorite-btn">Favorite</button>
-                <strong>${place.name}</strong><br>
-                ${place.formatted_address}<br>
-                <a href="/details/${place.place_id}/">Details</a><br>
-                <strong>Cuisine:</strong> ${cuisineType}<br>
-                <strong>Rating:</strong> ${place.rating || 'No rating available'}<br>
-                <strong>Distance from your location:</strong> ${distance} km<br>
-                <strong>Reviews:</strong> ${reviewsContent}
-            `;
+                    const content = `
+                        <button onclick="addFavorite('${place.name}')" class="favorite-btn">Favorite</button>
+                        <strong>${place.name}</strong><br>
+                        ${place.formatted_address}<br>
+                        <a href="/details/${place.place_id}/">Details</a><br>
+                        <strong>Cuisine:</strong> ${cuisineType}<br>
+                        <strong>Rating:</strong> ${place.rating || 'No rating available'}<br>
+                        <strong>Distance from your location:</strong> ${distance} km<br>
+                        <strong>Reviews:</strong> ${reviewsContent}
+                    `;
 
-            infowindow.setContent(content);
-            infowindow.open(map, marker);
+                    infowindow.setContent(content);
+                    infowindow.open(map, marker);
+                }
+            });
 
             // Add click listener to the "Favorite" button
             google.maps.event.addListener(marker, "click", () => {
