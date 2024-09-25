@@ -20,79 +20,9 @@
         <div class="model">
             <button class="close-button" onclick="closeSidebar()">⨉</button>
             <div class="model-header"></div>
-            <div class="filter-section">
-                <h3>Distance</h3>
-                <div class="radio-group">
-                    <label class="radio">
-                        <input type="radio" name="distance" value="none" checked>
-                        <span>Any</span>
-                    </label>
-                    <label class="radio">
-                        <input type="radio" name="distance" value="20">
-                        <span><1 mi</span>
-                    </label>
-                    <label class="radio">
-                        <input type="radio" name="distance" value="10">
-                        <span><5 mi</span>
-                    </label>
-                    <label class="radio">
-                        <input type="radio" name="distance" value="5">
-                        <span><10 mi</span>
-                    </label>
-                    <label class="radio">
-                        <input type="radio" name="distance" value="1">
-                        <span><20 mi</span>
-                    </label>
-                </div>
-            </div>
-            <div class="filter-section">
-                <h3>Rating</h3>
-                <div class="radio-group">
-                    <label class="radio">
-                        <input type="radio" name="rating" value="none" checked>
-                        <span>Any</span>
-                    </label>
-                    <label class="radio">
-                        <input type="radio" name="rating" value="1">
-                        <span>>5</span>
-                    </label>
-                    <label class="radio">
-                        <input type="radio" name="rating" value="2">
-                        <span>>4</span>
-                    </label>
-                    <label class="radio">
-                        <input type="radio" name="rating" value="3">
-                        <span>>3</span>
-                    </label>
-                    <label class="radio">
-                        <input type="radio" name="rating" value="4">
-                        <span>>2</span>
-                    </label>
-                    <label class="radio">
-                        <input type="radio" name="rating" value="5">
-                        <span>>1</span>
-                    </label>
-                </div>
-            </div>
             <div class = "results">
                 {% for restaurant in saved_restaurants %}
                     <div class="result-card">
-                        <!--<div class="result-header">
-                            <h3>{{ restaurant.displayName.text }}</h3>
-                            <span class="distance">Distance</span>
-                        </div>
-                        <div class="result-details">
-                            <div class="rating">
-                                <span>{{ restaurant.rating }}</span>
-                                <div class = "stars">
-                                    {% for i in "12345" %}
-                                        <span class="star {% if forloop.counter <= restaurant.rating %}filled{% endif %}"></span>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                            <span class="cuisine">Cuisine</span>
-                        </div>
-                        <button class="favorite-button">♡</button> or ❤︎ if favorited -->
                         <h3>{{ restaurant.name }}</h3>
                         <a href="/details/{{ restaurant.place_id }}/">Find More Details Here!</a>
                     </div>
