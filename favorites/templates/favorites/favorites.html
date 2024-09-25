@@ -1,7 +1,7 @@
 <h1>Your Favorite Restaurants</h1>
 <ul>
     {% for restaurant in saved_restaurants %}
-        <li>{{ restaurant.name }}</li>
+        <li>{{ restaurant.place_id }}</li>
     {% empty %}
         <li>You have no favorite restaurants.</li>
     {% endfor %}
