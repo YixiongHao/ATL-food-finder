@@ -7,16 +7,20 @@ from django.contrib.auth.decorators import login_required
 from .models import Favorite
 
 
-@login_required
+
 def add_favorite(request):
-    if request.method == "POST":
-        data = json.loads(request.body)
-        place_id = data.get('place_id')
-        if place_id:
-            favorite, created = Favorite.objects.get_or_create(user=request.user, place_id=place_id)
-            return JsonResponse({'success': created})  # Return success response
-        else:
-            return JsonResponse({'error': 'place_id is required'}, status=469)
+    if request.user.is_authenticated:
+        if request.method == "POST":
+            data = json.loads(request.body)
+            place_id = data.get('place_id')
+            if place_id:
+                favorite, created = Favorite.objects.get_or_create(user=request.user, place_id=place_id)
+                return JsonResponse({'success': created})  # Return success response
+            else:
+                return JsonResponse({'error': 'place_id is required'}, status=469)
+    else:
+        return JsonResponse({'error': 'Unauthorized'}, status=403)
+
 
 
 def user_favorites(request):
