@@ -153,7 +153,7 @@
             google.maps.event.addListener(marker, "click", () => {
                const lat = place.geometry.location.lat;
                const lng = place.geometry.location.lng;
-               favoriteRestaurant(place.place_id, place.name, place.formatted_address, lat, lng);
+               addFavorite(place);
             });
         });
     }
@@ -190,7 +190,7 @@
         infowindow.open(map);
     }
 
-    function addFavorite(placeId, name) {
+    function addFavorite(place) {
         fetch(`addFavorite/`, {
             method: 'POST',
             headers: {
@@ -198,8 +198,8 @@
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                place_id: placeId,
-                name: name
+                place_id: place.place_id,
+                name: place.name
             })
         })
         .then(response => {
