@@ -109,7 +109,7 @@
         markers.push(marker); // Add marker to global array
 
         google.maps.event.addListener(marker, 'click', () => {
-            cuisineType = cuisineType.replace('_', ' ');
+            cuisineType = cuisineType[0].toUpperCase() + cuisineType.slice(1).replaceAll('_', ' ');
 
             const request = {
                 placeId: place.place_id,
@@ -137,7 +137,7 @@
                         <button onclick="addFavorite('${place.place_id}', '${place.name}')" class="favorite-btn">Favorite</button>
                         <strong>${place.name}</strong><br>
                         ${place.formatted_address}<br>
-                        <a href="/details/${place.place_id}/">Details</a><br>
+                        <a href="/details/${place.place_id}/?cuisine_type=${encodeURIComponent(cuisineType)}">Details</a><br>
                         <strong>Cuisine:</strong> ${cuisineType}<br>
                         <strong>Rating:</strong> ${place.rating || 'No rating available'}<br>
                         <strong>Distance from your location:</strong> ${distance} km<br>
