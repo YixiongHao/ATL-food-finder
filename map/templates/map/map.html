@@ -9,6 +9,7 @@
     let userLocationMarker;
     let userLocation;
     let markers = [];
+    let isFavorite
     let searches = ['american_restaurant', 'bakery', 'bar', 'barbecue_restaurant', 'brazilian_restaurant',
     'breakfast_restaurant', 'brewpub', 'brunch_restaurant', 'cafe', 'chinese_restaurant', 'coffee_shop', 'fast_food_restaurant',
     'french_restaurant', 'greek_restaurant', 'hamburger_restaurant', 'ice_cream_shop', 'indian_restaurant',
@@ -123,31 +124,60 @@
                         place.geometry.location.lng()
                     ).toFixed(2);
 
-                    const favoritePlaceIds = await fetchFavorites();
-                    const isFavorite = favoritePlaceIds.includes(place.place_id);
-
-                    const favoriteText = isFavorite ? "Unfavorite" : "Favorite";
-                    const favoriteAction = isFavorite ? `removeFavorite('${place.place_id}', '${place.name}')` : `addFavorite('${place.place_id}', '${place.name}')`;
-
                     // Mock email for demonstration; in a real app, email data should be retrieved from the backend
                     const email = `info@${placeDetails.website ? new URL(placeDetails.website).hostname : 'example.com'}`;
 
-                    const content = `
-                        <button onclick="${favoriteAction}" class="favorite-btn">${favoriteText}</button>
-                        <strong>${place.name}</strong><br>
-                        ${place.formatted_address}<br>
-                        <strong>Phone:</strong> ${placeDetails.formatted_phone_number || 'Not available'}<br>
-                        <strong>Email:</strong> <a href="mailto:${email}">${email}</a><br>
-                        <strong>Website:</strong> <a href="${placeDetails.website || '#'}" target="_blank">${placeDetails.website ? placeDetails.website : 'Not available'}</a><br>
-                        <a href="/details/${place.place_id}/?cuisine_type=${encodeURIComponent(cuisineType)}">Details</a><br>
-                        <strong>Cuisine:</strong> ${cuisineType}<br>
-                        <strong>Rating:</strong> ${place.rating || 'No rating available'}<br>
-                        <strong>Distance from your location:</strong> ${distance} km<br>
-                        <strong>Reviews:</strong> ${reviewsContent}<br>
-                        <a href="https://www.google.com/maps/search/?api=1&query=Google&query_place_id=${place.place_id}" target="_blank">View on Google Maps</a>
-                    `;
+                    const favoritePlaceIds = await fetchFavorites();
+                    isFavorite = favoritePlaceIds.includes(place.place_id);
 
-                    infowindow.setContent(content);
+                    const createFavoriteButton = () => {
+                        const button = document.createElement('button');
+                        button.className = 'favorite-btn'; // Use your CSS class name here
+                        button.innerText = isFavorite ? "Unfavorite" : "Favorite";
+
+                        button.onclick = () => {
+                            console.log("Button clicked! Current state:", isFavorite); // Debug log
+                            if (isFavorite) {
+                                removeFavorite(place.place_id, place.name);
+                                button.innerText = "Favorite"; // Change to "Favorite"
+                            } else {
+                                addFavorite(place.place_id, place.name);
+                                button.innerText = "Unfavorite"; // Change to "Unfavorite"
+                            }
+                            isFavorite = !isFavorite; // Toggle the favorite status
+                        };
+
+                        return button;
+                    };
+
+                    // Helper function to create and append elements
+                    const createElement = (tag, innerHTML = '', parent) => {
+                        const element = document.createElement(tag);
+                        element.innerHTML = innerHTML;
+                        parent.appendChild(element);
+                        return element;
+                    };
+
+                    const contentDiv = document.createElement('div');
+
+                    // Create the button and append it to the content div
+                    const button = createFavoriteButton();
+                    contentDiv.appendChild(button); // Append button to the content div
+
+                    createElement('strong', place.name, contentDiv);
+                    createElement('div', place.formatted_address, contentDiv);
+                    createElement('strong', `Phone: ${placeDetails.formatted_phone_number || 'Not available'}`, contentDiv);
+                    createElement('strong', `Email: <a href="mailto:${email}">${email}</a>`, contentDiv);
+                    createElement('strong', `Website: <a href="${placeDetails.website || '#'}" target="_blank">${placeDetails.website ? placeDetails.website : 'Not available'}</a>`, contentDiv);
+                    createElement('a', `Details`, contentDiv).href = `/details/${place.place_id}/?cuisine_type=${encodeURIComponent(cuisineType)}`;
+                    createElement('strong', `Cuisine: ${cuisineType}`, contentDiv);
+                    createElement('strong', `Rating: ${place.rating || 'No rating available'}`, contentDiv);
+                    createElement('strong', `Distance from your location: ${distance} km`, contentDiv);
+                    createElement('strong', `Reviews: ${reviewsContent}`, contentDiv);
+                    createElement('a', `View on Google Maps`, contentDiv).href = `https://www.google.com/maps/search/?api=1&query=Google&query_place_id=${place.place_id}`;
+
+                    // Set the content of the info window
+                    infowindow.setContent(contentDiv);
                     infowindow.open(map, marker);
                 }
             });
@@ -210,7 +240,7 @@
         })
         .then(response => {
             if (response.ok) {
-                showNotification('Added to favorites!');
+                showNotification('Added to favorites!', 'added');
             } else if (response.status === 403) {
                 window.location.href = '/login';
             }
@@ -231,21 +261,25 @@
         })
         .then(response => {
             if (response.ok) {
-                showNotification('Removed from favorites!');
+                showNotification('Removed from favorites!', 'removed');
             } else if (response.status === 403) {
                 window.location.href = '/login';
             }
         });
     }
 
-    function showNotification(message) {
+    function showNotification(message, type) {
         const notification = document.getElementById('notification');
-        notification.innerText = message;
-        notification.style.display = 'block';
 
+        // Clear existing classes and set the new one
+        notification.classList.remove('notification-added', 'notification-removed');
+        notification.classList.add(type === 'added' ? 'notification-added' : 'notification-removed');
+        notification.textContent = message; // Set the notification message
+        notification.style.display = 'block'; // Show the notification
+        // Hide the notification after a few seconds
         setTimeout(() => {
             notification.style.display = 'none';
-        }, 1000);
+        }, 3000); // Adjust the timeout as needed
     }
 
     function getCookie(name) {
