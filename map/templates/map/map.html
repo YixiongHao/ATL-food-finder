@@ -113,7 +113,8 @@
 
             const request = {
                 placeId: place.place_id,
-                fields: ['name', 'formatted_address', 'rating', 'reviews', 'types', 'geometry']
+                fields: ['name', 'formatted_address', 'rating', 'reviews', 'types', 'geometry',
+                'formatted_phone_number', 'email', 'website']
             };
             service.getDetails(request, async (placeDetails, status) => {
                 if (status === google.maps.places.PlacesServiceStatus.OK && placeDetails) {
@@ -144,6 +145,9 @@
                         <strong>${place.name}</strong><br>
                         ${place.formatted_address}<br>
                         <a href="/details/${place.place_id}/?cuisine_type=${encodeURIComponent(cuisineType)}">Details</a><br>
+                        <strong>Phone:</strong> ${placeDetails.formatted_phone_number}<br>
+                        <strong>Email:</strong> ${placeDetails.email}<br>
+                        <strong>Website:</strong> ${placeDetails.website}<br>
                         <strong>Cuisine:</strong> ${cuisineType}<br>
                         <strong>Rating:</strong> ${place.rating || 'No rating available'}<br>
                         <strong>Distance from your location:</strong> ${distance} km<br>
@@ -214,7 +218,7 @@
         })
         .then(response => {
             if (response.ok) {
-                showNotification('Added to favorites!');
+                showNotification('Added to favorites!', 'added');
                 // Optionally update the UI
             } else if (response.status === 403) {
                 window.location.href = '/login';
@@ -236,7 +240,7 @@
         })
         .then(response => {
             if (response.ok) {
-                showNotification('Removed from favorites!');
+                showNotification('Removed from favorites!', 'removed');
                 // Optionally update the UI
             } else if (response.status === 403) {
                 window.location.href = '/login';
@@ -244,15 +248,20 @@
         });
     }
 
-    function showNotification(message) {
+    function showNotification(message, type) {
         const notification = document.getElementById('notification');
-        notification.innerText = message;
-        notification.style.display = 'block';
 
-        // Hide the notification after 3 seconds
+        // Clear existing classes and set the new one
+        notification.classList.remove('notification-added', 'notification-removed');
+        notification.classList.add(type === 'added' ? 'notification-added' : 'notification-removed');
+
+        notification.textContent = message; // Set the notification message
+        notification.style.display = 'block'; // Show the notification
+
+        // Hide the notification after a few seconds
         setTimeout(() => {
             notification.style.display = 'none';
-        }, 1000);
+        }, 3000); // Adjust the timeout as needed
     }
 
     // Utility function to get CSRF token
