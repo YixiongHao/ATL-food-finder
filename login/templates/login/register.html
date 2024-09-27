@@ -113,6 +113,11 @@ input[type="password"], input[type="email"] {
         .errorlist li {
             list-style-type: none;
         }
+        
+        .alert {
+            color: red;
+            margin-bottom: 16px;
+        }
 
     </style>
 </head>
@@ -129,6 +134,17 @@ input[type="password"], input[type="email"] {
                 <div class="modal-content">
                     <p>Register Now to Create an Account</p>
                 </div>
+                {% if messages %}
+                    <div class="messages">
+                        {% for message in messages %}
+                            {% if forloop.last %}
+                                <div class="alert {% if message.tags %}alert-{{ message.tags }}"{% endif %}">
+                                    {{ message }}
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                {% endif %}
                 <!-- Django form starts here -->
                 <form method="POST" novalidate>
                     {% csrf_token %}
