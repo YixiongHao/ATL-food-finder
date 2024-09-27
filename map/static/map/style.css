@@ -46,7 +46,6 @@ body {
 
 #notification {
     display: none;
-    background-color: #4CAF50;
     color: white;
     padding: 15px;
     position: fixed;
@@ -57,6 +56,14 @@ body {
     z-index: 1000; /* Ensure it appears on top of other content */
     box-shadow: 0px 4px 2px -2px gray; /* Optional shadow for style */
     font-size: 16px;
+}
+
+.notification-added {
+    background-color: #4CAF50; /* Green for added */
+}
+
+.notification-removed {
+    background-color: #f44336; /* Red for removed */
 }
 
 .show {

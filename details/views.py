@@ -3,6 +3,7 @@ from django.views import View
 from ATL_food_finder import settings
 from .models import Restaurant
 from django.shortcuts import render, get_object_or_404
+from urllib.parse import urlparse
 import json
 import threading
 import requests
@@ -93,7 +94,7 @@ def restaurant_detail(request, place_id):
             'rating': place_details.get('rating'),
             'reviews': place_details.get('reviews', []),
             'phone': place_details.get('formatted_phone_number'),  # Phone number
-            'email': place_details.get('email'),  # Email (not always available)
+            'email': f"info@{urlparse(place_details.get('website', '')).hostname if place_details.get('website') else 'example.com'}",
             'website': place_details.get('website'),  # Website URL
             'distance': calculate_distance(user_lat, user_lng, place_details['geometry']['location']['lat'], place_details['geometry']['location']['lng']),
         },
