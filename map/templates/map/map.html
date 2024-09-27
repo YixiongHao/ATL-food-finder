@@ -115,7 +115,7 @@
                 placeId: place.place_id,
                 fields: ['name', 'formatted_address', 'rating', 'reviews', 'types', 'geometry']
             };
-            service.getDetails(request, (placeDetails, status) => {
+            service.getDetails(request, async (placeDetails, status) => {
                 if (status === google.maps.places.PlacesServiceStatus.OK && placeDetails) {
                     let reviewsContent = '';
                     if (placeDetails.reviews && placeDetails.reviews.length > 0) {
@@ -133,8 +133,14 @@
                         place.geometry.location.lng()
                     ).toFixed(2);
 
+                    const favoritePlaceIds = await fetchFavorites();
+                    const isFavorite = favoritePlaceIds.includes(place.place_id);
+
+                    const favoriteText = isFavorite ? "Unfavorite" : "Favorite";
+                    const favoriteAction = isFavorite ? `removeFavorite('${place.place_id}', '${place.name}')` : `addFavorite('${place.place_id}', '${place.name}')`;
+
                     const content = `
-                        <button onclick="addFavorite('${place.place_id}', '${place.name}')" class="favorite-btn">Favorite</button>
+                        <button onclick="${favoriteAction}" class="favorite-btn">${favoriteText}</button>
                         <strong>${place.name}</strong><br>
                         ${place.formatted_address}<br>
                         <a href="/details/${place.place_id}/?cuisine_type=${encodeURIComponent(cuisineType)}">Details</a><br>
@@ -183,6 +189,17 @@
         infowindow.open(map);
     }
 
+    async function fetchFavorites() {
+        const response = await fetch('/get_favorites/');
+        if (response.ok) {
+            const favoritePlaceIds = await response.json();
+            return favoritePlaceIds;
+        } else {
+            console.error('Failed to fetch favorites');
+            return [];
+        }
+    }
+
     function addFavorite(placeId, name) {
         fetch(`addFavorite/`, {
             method: 'POST',
@@ -198,6 +215,28 @@
         .then(response => {
             if (response.ok) {
                 showNotification('Added to favorites!');
+                // Optionally update the UI
+            } else if (response.status === 403) {
+                window.location.href = '/login';
+            }
+        });
+    }
+
+    function removeFavorite(placeId, name) {
+        fetch(`removeFavorite/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                place_id: placeId,
+                name: name
+            })
+        })
+        .then(response => {
+            if (response.ok) {
+                showNotification('Removed from favorites!');
                 // Optionally update the UI
             } else if (response.status === 403) {
                 window.location.href = '/login';
