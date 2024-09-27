@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'login.apps.LoginConfig',
     'details.apps.DetailsConfig',
     'favorites.apps.FavoritesConfig',
+    'search.apps.SearchConfig'
 ]
 
 MIDDLEWARE = [
