@@ -197,12 +197,23 @@
         })
         .then(response => {
             if (response.ok) {
-                alert('Added to favorites!');
+                showNotification('Added to favorites!');
                 // Optionally update the UI
             } else if (response.status === 403) {
                 window.location.href = '/login';
             }
         });
+    }
+
+    function showNotification(message) {
+        const notification = document.getElementById('notification');
+        notification.innerText = message;
+        notification.style.display = 'block';
+
+        // Hide the notification after 3 seconds
+        setTimeout(() => {
+            notification.style.display = 'none';
+        }, 1000);
     }
 
     // Utility function to get CSRF token
@@ -229,6 +240,7 @@
     <div class="linkholder">
         <div class="mapholder">
                 <div class="frame1">
+                    <div id="notification">Added to favorites!</div>
                     <div class="search-bar">
                         <form action="{% url 'search' %}" method="GET">
                             <input type="text" name = "query" placeholder="Search..." class="search-input">
