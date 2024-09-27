@@ -54,9 +54,21 @@ def sign_up(request):
         if form.is_valid():
             user = form.save(commit=False)
             user.username = user.username.lower()
-            user.save()
-            # messages.success(request, "You have signed up successfully.")
-            login(request, user)
-            return redirect('map')
+            password = form.cleaned_data.get('password1')
+            print(password)
+            if not (6 <= len(user.username) <= 26):
+                messages.error(request, f'Username must be between 6 and 26 characters')
+                return render(request, 'login/register.html', {'form': form})
+            elif not password or password.isspace():
+                messages.error(request, f'Password cannot be only empty characters')
+                return render(request, 'login/register.html', {'form': form})
+            elif not (6 <= len(password) <= 26):
+                messages.error(request, f'Password must be between 6 and 26 characters')
+                return render(request, 'login/register.html', {'form': form})
+            else:
+                user.save()
+                # messages.success(request, "You have signed up successfully.")
+                login(request, user)
+                return redirect('map')
         else:
             return render(request, 'login/register.html', {'form': form})
