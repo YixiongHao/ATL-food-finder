@@ -18,7 +18,7 @@
     </div>
     <div class="sidebar-search" id = "sidebar">
         <div class="model">
-            <button class="close-button" onclick="closeSidebar()">⨉</button>
+            <button class="close-button" onclick="goToMap()">⨉</button>
             <div class="model-header"></div>
             <div class = "results">
                 {% for restaurant in saved_restaurants %}
@@ -27,7 +27,7 @@
                         <a href="/details/{{ restaurant.place_id }}/">Find More Details Here!</a>
                     </div>
                 {% empty %}
-                    <p>You have no favorite restaurants</p>
+                    <p>You have no favorite restaurants.</p>
                 {% endfor %}
             </div>
         </div>
@@ -103,8 +103,8 @@
 </script>
 
     <script>
-    function closeSidebar(){
-        document.getElementById('sidebar').style.display = 'none';
+    function goToMap(){
+        window.location.href = 'http://localhost:8000';
     }
 
     function openSidebar(term){

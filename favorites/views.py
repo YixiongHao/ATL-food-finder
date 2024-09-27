@@ -5,6 +5,7 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.decorators import login_required
 from .models import Favorite
+from django.conf import settings
 
 
 
@@ -28,4 +29,9 @@ def user_favorites(request):
     saved_restaurants = Favorite.objects.filter(user=request.user).order_by(
         'name')
     # print(saved_restaurants)
-    return render(request, 'favorites/favorites.html', {'saved_restaurants': saved_restaurants})
+    key = settings.GOOGLE_API_KEY
+    context = {
+        'key': key,
+        'saved_restaurants': saved_restaurants
+    }
+    return render(request, 'favorites/favorites.html', context)

@@ -1,6 +1,5 @@
 from django.http import JsonResponse
 from django.views import View
-
 from ATL_food_finder import settings
 from .models import Restaurant
 from django.shortcuts import render, get_object_or_404
@@ -41,7 +40,7 @@ class SaveRestaurantsView(View):
         return JsonResponse({'status': 'success'})
 
 
-# Function to get restaurant details from Google Places API
+# Function to get restaurant details from Google Places API, including contact info
 def get_place_details(place_id):
     url = f"https://maps.googleapis.com/maps/api/place/details/json?place_id={place_id}&key={GOOGLE_API_KEY}"
     response = requests.get(url)
@@ -65,6 +64,7 @@ def calculate_distance(user_lat, user_lng, restaurant_lat, restaurant_lng):
 def restaurant_detail(request, place_id):
     # Fetch restaurant details from Google Places API
     place_details = get_place_details(place_id)
+    cuisine_type = request.GET.get('cuisine_type', '')
 
     if not place_details:
         return JsonResponse({'status': 'error', 'message': 'Details not found'}, status=404)
@@ -92,8 +92,13 @@ def restaurant_detail(request, place_id):
             'lng': place_details['geometry']['location']['lng'],
             'rating': place_details.get('rating'),
             'reviews': place_details.get('reviews', []),
+            'phone': place_details.get('formatted_phone_number'),  # Phone number
+            'email': place_details.get('email'),  # Email (not always available)
+            'website': place_details.get('website'),  # Website URL
             'distance': calculate_distance(user_lat, user_lng, place_details['geometry']['location']['lat'], place_details['geometry']['location']['lng']),
-        }
+        },
+        'cuisine_type': cuisine_type,
+        'GOOGLE_API_KEY': GOOGLE_API_KEY
     }
 
     return render(request, 'details/restaurant_detail.html', context)

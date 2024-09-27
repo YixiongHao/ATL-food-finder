@@ -74,7 +74,14 @@
         <h1>{{ restaurant.name }}</h1>
         <p><strong>Address:</strong> {{ restaurant.address }}</p>
         <p><strong>Location:</strong> Latitude {{ restaurant.lat }}, Longitude {{ restaurant.lng }}</p>
+        <p><strong>Cuisine type:</strong> {{ cuisine_type }}</p>
         <p><strong>Rating:</strong> {{ restaurant.rating }}</p>
+
+        <!-- Contact Information -->
+        <h2>Contact Information:</h2>
+        <p><strong>Phone:</strong> {{ restaurant.phone }}</p>
+        <p><strong>Email:</strong> {{ restaurant.email }}</p>
+        <p><strong>Website:</strong> <a href="{{ restaurant.website }}" target="_blank">{{ restaurant.website }}</a></p>
 
         <h2>Reviews:</h2>
         {% if restaurant.reviews %}
@@ -90,15 +97,15 @@
             <p>No reviews available</p>
         {% endif %}
 
-        <!-- Mini Map -->
-        <h2>Location Map:</h2>
-        <div id="mini-map"></div>
-
         <!-- Google Maps Directions Link -->
         <h2>Get Directions:</h2>
         <a href="https://www.google.com/maps/dir/?api=1&destination={{ restaurant.lat }},{{ restaurant.lng }}" target="_blank">
             Get Directions on Google Maps
         </a>
+
+        <!-- Mini Map -->
+        <h2>Location Map:</h2>
+        <div id="mini-map"></div>
     </div>
 
     <script>
@@ -119,7 +126,7 @@
 
         // Load Google Maps Script
         const script = document.createElement('script');
-        script.src = `https://maps.googleapis.com/maps/api/js?key={{ GOOGLE_API_KEY }}&callback=initMiniMap`;
+        script.src = `https://maps.googleapis.com/maps/api/js?key={{ GOOGLE_API_KEY}}&callback=initMiniMap`;
         script.defer = true;
         document.head.appendChild(script);
     </script>
