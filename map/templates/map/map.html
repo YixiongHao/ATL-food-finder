@@ -148,13 +148,6 @@
                     infowindow.open(map, marker);
                 }
             });
-
-            // Add click listener to the "Favorite" button
-            google.maps.event.addListener(marker, "click", () => {
-               const lat = place.geometry.location.lat;
-               const lng = place.geometry.location.lng;
-               addFavorite(place);
-            });
         });
     }
 
@@ -190,7 +183,7 @@
         infowindow.open(map);
     }
 
-    function addFavorite(place) {
+    function addFavorite(placeId, name) {
         fetch(`addFavorite/`, {
             method: 'POST',
             headers: {
@@ -198,8 +191,8 @@
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                place_id: place.place_id,
-                name: place.name
+                place_id: placeId,
+                name: name
             })
         })
         .then(response => {
