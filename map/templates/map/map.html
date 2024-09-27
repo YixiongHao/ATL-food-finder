@@ -103,7 +103,7 @@
 
             const request = {
                 placeId: place.place_id,
-                fields: ['name', 'formatted_address', 'rating', 'reviews', 'types', 'geometry', 'formatted_phone_number', 'website']
+                fields: ['name', 'formatted_address', 'rating', 'reviews', 'types', 'geometry', 'formatted_phone_number', 'website', 'user_ratings_total']
             };
             service.getDetails(request, async (placeDetails, status) => {
                 if (status === google.maps.places.PlacesServiceStatus.OK && placeDetails) {
@@ -129,11 +129,15 @@
                     const favoriteText = isFavorite ? "Unfavorite" : "Favorite";
                     const favoriteAction = isFavorite ? `removeFavorite('${place.place_id}', '${place.name}')` : `addFavorite('${place.place_id}', '${place.name}')`;
 
+                    // Mock email for demonstration; in a real app, email data should be retrieved from the backend
+                    const email = `info@${placeDetails.website ? new URL(placeDetails.website).hostname : 'example.com'}`;
+
                     const content = `
                         <button onclick="${favoriteAction}" class="favorite-btn">${favoriteText}</button>
                         <strong>${place.name}</strong><br>
                         ${place.formatted_address}<br>
                         <strong>Phone:</strong> ${placeDetails.formatted_phone_number || 'Not available'}<br>
+                        <strong>Email:</strong> <a href="mailto:${email}">${email}</a><br>
                         <strong>Website:</strong> <a href="${placeDetails.website || '#'}" target="_blank">${placeDetails.website ? placeDetails.website : 'Not available'}</a><br>
                         <a href="/details/${place.place_id}/?cuisine_type=${encodeURIComponent(cuisineType)}">Details</a><br>
                         <strong>Cuisine:</strong> ${cuisineType}<br>
@@ -269,7 +273,7 @@
                     <div id="notification">Added to favorites!</div>
                     <div class="search-bar">
                         <form action="{% url 'search' %}" method="GET">
-                            <input type="text" name = "query" placeholder="Search..." class="search-input">
+                            <input type="text" name="query" placeholder="Search..." class="search-input">
                             <button class="search-icon">🔎︎</button>
                         </form>
                     </div>
