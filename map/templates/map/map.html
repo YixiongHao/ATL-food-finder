@@ -8,7 +8,7 @@
     let infowindow;
     let userLocationMarker;
     let userLocation;
-    let markers = []; // Track markers to clear them
+    let markers = [];
     let searches = ['american_restaurant', 'bakery', 'bar', 'barbecue_restaurant', 'brazilian_restaurant',
     'breakfast_restaurant', 'brewpub', 'brunch_restaurant', 'cafe', 'chinese_restaurant', 'coffee_shop', 'fast_food_restaurant',
     'french_restaurant', 'greek_restaurant', 'hamburger_restaurant', 'ice_cream_shop', 'indian_restaurant',
@@ -26,7 +26,6 @@
                     lng: position.coords.longitude
                 };
 
-                // Initialize the map centered at the user's location
                 map = new google.maps.Map(document.getElementById('map'), {
                     zoom: 12,
                     center: userLocation
@@ -35,48 +34,41 @@
                 infowindow = new google.maps.InfoWindow();
                 service = new google.maps.places.PlacesService(map);
 
-                // Add user location marker
                 addUserLocationMarker(userLocation);
-
-                // Perform initial restaurant search based on zoom level
                 updateRestaurants();
-
-                // Add zoom change listener to dynamically update restaurants as the user zooms
                 google.maps.event.addListener(map, 'zoom_changed', () => {
-                    clearMarkers(); // Clear old markers
-                    updateRestaurants(); // Add new restaurants based on zoom level
+                    clearMarkers();
+                    updateRestaurants();
                 });
             }, () => {
-                const fallbackLocation = { lat: 33.7488, lng: -84.3877 }; // Fallback to Atlanta
+                const fallbackLocation = { lat: 33.7488, lng: -84.3877 };
                 handleLocationError(true, fallbackLocation);
             });
         } else {
-            const fallbackLocation = { lat: 33.7488, lng: -84.3877 }; // Fallback to Atlanta
+            const fallbackLocation = { lat: 33.7488, lng: -84.3877 };
             handleLocationError(false, fallbackLocation);
         }
     }
 
-    // Update restaurants dynamically based on zoom level
     function updateRestaurants() {
         const zoomLevel = map.getZoom();
         let radius;
 
-        // Dynamically adjust the radius based on the zoom level
         if (zoomLevel >= 15) {
-            radius = 1000; // 1 km for detailed zoom
+            radius = 1000;
         } else if (zoomLevel >= 12) {
-            radius = 5000; // 5 km for moderate zoom
+            radius = 5000;
         } else if (zoomLevel >= 9) {
-            radius = 15000; // 15 km for further out
+            radius = 15000;
         } else {
-            radius = 30000; // 30 km for wide zoom
+            radius = 30000;
         }
 
         for (let i = 0; i < searches.length; i++) {
             const request = {
                 query: searches[i],
                 location: userLocation,
-                radius: radius // Use dynamic radius
+                radius: radius
             };
             service.textSearch(request, (results, status) => {
                 if (status === google.maps.places.PlacesServiceStatus.OK && results) {
@@ -88,15 +80,13 @@
         }
     }
 
-    // Clear all markers from the map
     function clearMarkers() {
         for (let i = 0; i < markers.length; i++) {
-            markers[i].setMap(null); // Remove marker from map
+            markers[i].setMap(null);
         }
-        markers = []; // Clear marker array
+        markers = [];
     }
 
-    // Create a new marker for each restaurant
     function createMarker(place, cuisineType) {
         if (!place.geometry || !place.geometry.location) return;
 
@@ -106,15 +96,14 @@
             title: place.name
         });
 
-        markers.push(marker); // Add marker to global array
+        markers.push(marker);
 
         google.maps.event.addListener(marker, 'click', () => {
             cuisineType = cuisineType[0].toUpperCase() + cuisineType.slice(1).replaceAll('_', ' ');
 
             const request = {
                 placeId: place.place_id,
-                fields: ['name', 'formatted_address', 'rating', 'reviews', 'types', 'geometry',
-                'formatted_phone_number', 'email', 'website']
+                fields: ['name', 'formatted_address', 'rating', 'reviews', 'types', 'geometry', 'formatted_phone_number', 'website', 'user_ratings_total']
             };
             service.getDetails(request, async (placeDetails, status) => {
                 if (status === google.maps.places.PlacesServiceStatus.OK && placeDetails) {
@@ -140,18 +129,22 @@
                     const favoriteText = isFavorite ? "Unfavorite" : "Favorite";
                     const favoriteAction = isFavorite ? `removeFavorite('${place.place_id}', '${place.name}')` : `addFavorite('${place.place_id}', '${place.name}')`;
 
+                    // Mock email for demonstration; in a real app, email data should be retrieved from the backend
+                    const email = `info@${placeDetails.website ? new URL(placeDetails.website).hostname : 'example.com'}`;
+
                     const content = `
                         <button onclick="${favoriteAction}" class="favorite-btn">${favoriteText}</button>
                         <strong>${place.name}</strong><br>
                         ${place.formatted_address}<br>
+                        <strong>Phone:</strong> ${placeDetails.formatted_phone_number || 'Not available'}<br>
+                        <strong>Email:</strong> <a href="mailto:${email}">${email}</a><br>
+                        <strong>Website:</strong> <a href="${placeDetails.website || '#'}" target="_blank">${placeDetails.website ? placeDetails.website : 'Not available'}</a><br>
                         <a href="/details/${place.place_id}/?cuisine_type=${encodeURIComponent(cuisineType)}">Details</a><br>
-                        <strong>Phone:</strong> ${placeDetails.formatted_phone_number}<br>
-                        <strong>Email:</strong> ${placeDetails.email}<br>
-                        <strong>Website:</strong> ${placeDetails.website}<br>
                         <strong>Cuisine:</strong> ${cuisineType}<br>
                         <strong>Rating:</strong> ${place.rating || 'No rating available'}<br>
                         <strong>Distance from your location:</strong> ${distance} km<br>
-                        <strong>Reviews:</strong> ${reviewsContent}
+                        <strong>Reviews:</strong> ${reviewsContent}<br>
+                        <a href="https://www.google.com/maps/search/?api=1&query=Google&query_place_id=${place.place_id}" target="_blank">View on Google Maps</a>
                     `;
 
                     infowindow.setContent(content);
@@ -161,7 +154,6 @@
         });
     }
 
-    // Add a marker for the user's current location
     function addUserLocationMarker(location) {
         userLocationMarker = new google.maps.Marker({
             position: location,
@@ -175,7 +167,7 @@
     }
 
     function calculateDistance(lat1, lng1, lat2, lng2) {
-        const R = 6371; // Radius of the Earth in km
+        const R = 6371;
         const dLat = (lat2 - lat1) * Math.PI / 180;
         const dLng = (lng2 - lng1) * Math.PI / 180;
         const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
@@ -218,8 +210,7 @@
         })
         .then(response => {
             if (response.ok) {
-                showNotification('Added to favorites!', 'added');
-                // Optionally update the UI
+                showNotification('Added to favorites!');
             } else if (response.status === 403) {
                 window.location.href = '/login';
             }
@@ -240,38 +231,29 @@
         })
         .then(response => {
             if (response.ok) {
-                showNotification('Removed from favorites!', 'removed');
-                // Optionally update the UI
+                showNotification('Removed from favorites!');
             } else if (response.status === 403) {
                 window.location.href = '/login';
             }
         });
     }
 
-    function showNotification(message, type) {
+    function showNotification(message) {
         const notification = document.getElementById('notification');
+        notification.innerText = message;
+        notification.style.display = 'block';
 
-        // Clear existing classes and set the new one
-        notification.classList.remove('notification-added', 'notification-removed');
-        notification.classList.add(type === 'added' ? 'notification-added' : 'notification-removed');
-
-        notification.textContent = message; // Set the notification message
-        notification.style.display = 'block'; // Show the notification
-
-        // Hide the notification after a few seconds
         setTimeout(() => {
             notification.style.display = 'none';
-        }, 3000); // Adjust the timeout as needed
+        }, 1000);
     }
 
-    // Utility function to get CSRF token
     function getCookie(name) {
         let cookieValue = null;
         if (document.cookie && document.cookie !== '') {
             const cookies = document.cookie.split(';');
             for (let i = 0; i < cookies.length; i++) {
                 const cookie = cookies[i].trim();
-                // Check if this cookie string begins with the name we want
                 if (cookie.substring(0, name.length + 1) === (name + '=')) {
                     cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
                     break;
@@ -291,7 +273,7 @@
                     <div id="notification">Added to favorites!</div>
                     <div class="search-bar">
                         <form action="{% url 'search' %}" method="GET">
-                            <input type="text" name = "query" placeholder="Search..." class="search-input">
+                            <input type="text" name="query" placeholder="Search..." class="search-input">
                             <button class="search-icon">🔎︎</button>
                         </form>
                     </div>
