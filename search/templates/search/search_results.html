@@ -79,7 +79,7 @@
                     <div class="result-card">
                         <div class="result-header">
                             <h3>{{ place.displayName.text }}</h3>
-                            <span class="distance">Distance</span>
+                            <span class="distance">{{ place.distance }} mi</span>
                         </div>
                         <div class="result-details">
                             <div class="rating">
@@ -90,7 +90,7 @@
                                     {% endfor %}
                                 </div>
                             </div>
-                            <span class="cuisine">Cuisine</span>
+                            <span class="cuisine">{{ place.cuisine }}</span>
                         </div>
                         <button class="favorite-button">♡</button> <!-- or ❤︎ if favorited -->
                         <p class="description">{{ place.formattedAddress }}</p>
