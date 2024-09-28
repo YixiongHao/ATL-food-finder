@@ -20,60 +20,60 @@
         <div class="model">
             <button class="close-button" onclick="closeSidebar()">⨉</button>
             <div class="model-header"></div>
-            <div class="filter-section">
-                <h3>Distance</h3>
-                <div class="radio-group">
-                    <label class="radio">
-                        <input type="radio" name="distance" value="none" checked>
-                        <span>Any</span>
-                    </label>
-                    <label class="radio">
-                        <input type="radio" name="distance" value="20">
-                        <span><1 mi</span>
-                    </label>
-                    <label class="radio">
-                        <input type="radio" name="distance" value="10">
-                        <span><5 mi</span>
-                    </label>
-                    <label class="radio">
-                        <input type="radio" name="distance" value="5">
-                        <span><10 mi</span>
-                    </label>
-                    <label class="radio">
-                        <input type="radio" name="distance" value="1">
-                        <span><20 mi</span>
-                    </label>
+            <form id="filterRadius" method="GET" action="{% url 'search' %}">
+                <div class="filter-section">
+                    <h3>Distance</h3>
+                    <div class="radio-group">
+                        <label class="radio">
+                            <input type="radio" name="radius" value="500000" {% if radius == '500000' %}checked{% endif %}>
+                            <span>Any</span>
+                        </label>
+                        <label class="radio">
+                            <input type="radio" name="radius" value="1609" {% if radius == '1609' %}checked{% endif %}>
+                            <span><1 mi</span>
+                        </label>
+                        <label class="radio">
+                            <input type="radio" name="radius" value="8045" {% if radius == '8045' %}checked{% endif %}>
+                            <span><5 mi</span>
+                        </label>
+                        <label class="radio">
+                            <input type="radio" name="radius" value="16090" {% if radius == '16090' %}checked{% endif %}>
+                            <span><10 mi</span>
+                        </label>
+                        <label class="radio">
+                            <input type="radio" name="radius" value="32180" {% if radius == '32180' %}checked{% endif %}>
+                            <span><20 mi</span>
+                        </label>
+                    </div>
                 </div>
-            </div>
-            <div class="filter-section">
-                <h3>Rating</h3>
-                <div class="radio-group">
-                    <label class="radio">
-                        <input type="radio" name="rating" value="none" checked>
-                        <span>Any</span>
-                    </label>
-                    <label class="radio">
-                        <input type="radio" name="rating" value="1">
-                        <span>>5</span>
-                    </label>
-                    <label class="radio">
-                        <input type="radio" name="rating" value="2">
-                        <span>>4</span>
-                    </label>
-                    <label class="radio">
-                        <input type="radio" name="rating" value="3">
-                        <span>>3</span>
-                    </label>
-                    <label class="radio">
-                        <input type="radio" name="rating" value="4">
-                        <span>>2</span>
-                    </label>
-                    <label class="radio">
-                        <input type="radio" name="rating" value="5">
-                        <span>>1</span>
-                    </label>
+            </form>
+            <form id="filterRating" method="GET" action="{% url 'search' %}">
+                <div class="filter-section">
+                    <h3>Rating</h3>
+                    <div class="radio-group">
+                        <label class="radio">
+                            <input type="radio" name="min_rating" value="0" {% if min_rating == '0' %}checked{% endif %}>
+                            <span>Any</span>
+                        </label>
+                        <label class="radio">
+                            <input type="radio" name="min_rating" value="4" {% if min_rating == '4' %}checked{% endif %}>
+                            <span>>4</span>
+                        </label>
+                        <label class="radio">
+                            <input type="radio" name="min_rating" value="3" {% if min_rating == '3' %}checked{% endif %}>
+                            <span>>3</span>
+                        </label>
+                        <label class="radio">
+                            <input type="radio" name="min_rating" value="2" {% if min_rating == '2' %}checked{% endif %}>
+                            <span>>2</span>
+                        </label>
+                        <label class="radio">
+                            <input type="radio" name="min_rating" value="1" {% if min_rating == '1' %}checked{% endif %}>
+                            <span>>1</span>
+                        </label>
+                    </div>
                 </div>
-            </div>
+            </form>
             <div class = "results">
                 {% for place in results %}
                     <div class="result-card">
@@ -193,5 +193,68 @@
 </script>
 
 <script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&callback=initMap" async defer></script>
+
+
+<script>
+//for filter radio boxes
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('filterRadius');
+    const radioButtons = form.querySelectorAll('input[type="radio"]');
+
+    // Get the current radius from the URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const currentRadius = urlParams.get('radius') || '500000'; // Default to 500000 if not set
+
+    // Set the correct radio button as checked
+    radioButtons.forEach(function(radio) {
+        if (radio.value === currentRadius) {
+            radio.checked = true;
+        }
+    });
+
+    radioButtons.forEach(function(radio) {
+        radio.addEventListener('change', function() {
+            // Get all current URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+
+            // Update or add the radius parameter
+            urlParams.set('radius', this.value);
+
+            // Construct the new URL and navigate to it
+            window.location.href = window.location.pathname + '?' + urlParams.toString();
+        });
+    });
+});
+
+//for rating radio boxes
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('filterRating');
+    const radioButtons = form.querySelectorAll('input[type="radio"]');
+
+    // Get the current radius from the URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const currentRadius = urlParams.get('min_rating') || '0'; // Default to 500000 if not set
+
+    // Set the correct radio button as checked
+    radioButtons.forEach(function(radio) {
+        if (radio.value === currentRadius) {
+            radio.checked = true;
+        }
+    });
+
+    radioButtons.forEach(function(radio) {
+        radio.addEventListener('change', function() {
+            // Get all current URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+
+            // Update or add the radius parameter
+            urlParams.set('min_rating', this.value);
+
+            // Construct the new URL and navigate to it
+            window.location.href = window.location.pathname + '?' + urlParams.toString();
+        });
+    });
+});
+</script>
 
 {% endblock content %}
