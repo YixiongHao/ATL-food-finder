@@ -25,7 +25,7 @@
                     <h3>Distance</h3>
                     <div class="radio-group">
                         <label class="radio">
-                            <input type="radio" name="radius" value="500000" {% if radius == '500000' %}checked{% endif %}>
+                            <input type="radio" name="radius" value="50000" {% if radius == '50000' %}checked{% endif %}>
                             <span>Any</span>
                         </label>
                         <label class="radio">
@@ -147,7 +147,8 @@
     function handleLocationError(browserHasGeolocation, pos) {
         // Handle error (e.g., show a message to the user)
     }
-
+    
+    //wtf is this and do did it??
     function sendLocationToServer(location) {
         fetch('/your-view-url/', {
             method: 'POST',
@@ -203,7 +204,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Get the current radius from the URL
     const urlParams = new URLSearchParams(window.location.search);
-    const currentRadius = urlParams.get('radius') || '500000'; // Default to 500000 if not set
+    const currentRadius = urlParams.get('radius') || '50000'; // Default to 50000 if not set
 
     // Set the correct radio button as checked
     radioButtons.forEach(function(radio) {
@@ -226,18 +227,19 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+
 //for rating radio boxes
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('filterRating');
     const radioButtons = form.querySelectorAll('input[type="radio"]');
 
-    // Get the current radius from the URL
+    // Get the current rating from the URL
     const urlParams = new URLSearchParams(window.location.search);
-    const currentRadius = urlParams.get('min_rating') || '0'; // Default to 500000 if not set
+    const currentRating = urlParams.get('min_rating') || '0'; // Default to 500000 if not set
 
     // Set the correct radio button as checked
     radioButtons.forEach(function(radio) {
-        if (radio.value === currentRadius) {
+        if (radio.value === currentRating) {
             radio.checked = true;
         }
     });
@@ -247,7 +249,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Get all current URL parameters
             const urlParams = new URLSearchParams(window.location.search);
 
-            // Update or add the radius parameter
+            // Update or add the rating parameter
             urlParams.set('min_rating', this.value);
 
             // Construct the new URL and navigate to it
