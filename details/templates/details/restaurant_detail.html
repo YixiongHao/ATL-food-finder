@@ -108,18 +108,18 @@
             fullscreenControl: true,
             zoomControl: true,
 
-            // Move all controls to the left, keeping the vertical order
-            mapTypeControlOptions: {
-                position: google.maps.ControlPosition.LEFT_TOP
-            },
-            streetViewControlOptions: {
-                position: google.maps.ControlPosition.LEFT_TOP
-            },
+            // Set the positions of the controls
             fullscreenControlOptions: {
                 position: google.maps.ControlPosition.LEFT_TOP
             },
+            mapTypeControlOptions: {
+                position: google.maps.ControlPosition.LEFT_CENTER
+            },
+            streetViewControlOptions: {
+                position: google.maps.ControlPosition.LEFT_BOTTOM
+            },
             zoomControlOptions: {
-                position: google.maps.ControlPosition.LEFT_TOP
+                position: google.maps.ControlPosition.LEFT_BOTTOM
             }
         });
         var marker = new google.maps.Marker({
