@@ -108,6 +108,7 @@
 <script>
     let map;
     let userLocation;
+    let places = {{ results|safe }};  // Pass Django context variable for places as a JS object
 
     function initMap() {
         map = new google.maps.Map(document.getElementById('map'), {
@@ -156,6 +157,20 @@
         } else {
             handleLocationError(false, map.getCenter());
         }
+
+        // Place markers for all the results
+        places.forEach(function(place) {
+            let marker = new google.maps.Marker({
+                position: {lat: place.latitude, lng: place.longitude},
+                map: map,
+                title: place.displayName.text
+            });
+
+            // Add click event to open details on marker click
+            marker.addListener('click', function() {
+                window.location.href = '/details/' + place.id + '?cuisine_type=' + place.cuisine;
+            });
+        });
     }
 
     function handleLocationError(browserHasGeolocation, pos) {
@@ -201,8 +216,6 @@
         document.getElementById('sidebar').style.display = 'block';
     }
 
-    // favorite button behavior needs to be implemented ♡❤
-
     document.addEventListener("DOMContentLoaded", openSidebar());
     document.addEventListener("DOMContentLoaded", function () {
         this.title = "Search Results - ATL Food Finder";
@@ -218,11 +231,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('filterRadius');
     const radioButtons = form.querySelectorAll('input[type="radio"]');
 
-    // Get the current radius from the URL
     const urlParams = new URLSearchParams(window.location.search);
-    const currentRadius = urlParams.get('radius') || '50000'; // Default to 50000 if not set
+    const currentRadius = urlParams.get('radius') || '50000';
 
-    // Set the correct radio button as checked
     radioButtons.forEach(function(radio) {
         if (radio.value === currentRadius) {
             radio.checked = true;
@@ -231,13 +242,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     radioButtons.forEach(function(radio) {
         radio.addEventListener('change', function() {
-            // Get all current URL parameters
             const urlParams = new URLSearchParams(window.location.search);
-
-            // Update or add the radius parameter
             urlParams.set('radius', this.value);
-
-            // Construct the new URL and navigate to it
             window.location.href = window.location.pathname + '?' + urlParams.toString();
         });
     });
@@ -248,11 +254,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('filterRating');
     const radioButtons = form.querySelectorAll('input[type="radio"]');
 
-    // Get the current rating from the URL
     const urlParams = new URLSearchParams(window.location.search);
-    const currentRating = urlParams.get('min_rating') || '0'; // Default to 500000 if not set
+    const currentRating = urlParams.get('min_rating') || '0';
 
-    // Set the correct radio button as checked
     radioButtons.forEach(function(radio) {
         if (radio.value === currentRating) {
             radio.checked = true;
@@ -261,13 +265,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     radioButtons.forEach(function(radio) {
         radio.addEventListener('change', function() {
-            // Get all current URL parameters
             const urlParams = new URLSearchParams(window.location.search);
-
-            // Update or add the rating parameter
             urlParams.set('min_rating', this.value);
-
-            // Construct the new URL and navigate to it
             window.location.href = window.location.pathname + '?' + urlParams.toString();
         });
     });
