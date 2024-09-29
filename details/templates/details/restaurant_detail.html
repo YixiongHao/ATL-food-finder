@@ -29,7 +29,6 @@
 
         .result-card a {
             text-decoration: none;
-
         }
 
         .result-card a:hover {
@@ -43,89 +42,102 @@
         .search-icon {
             height: 40px;
         }
-        
+
         .search-bar {
             height: 40px;
         }
     </style>
 </head>
 <body>
-<div class = "main">
+<div class="main">
     <div class="frame1">
         <div class="search-bar">
             <form action="{% url 'search' %}" method="GET">
-            <input type="text" name = "query" placeholder="Search..." class="search-input">
-            <button type = "submit" class = "search-icon">🔎︎</button>
+                <input type="text" name="query" placeholder="Search..." class="search-input">
+                <button type="submit" class="search-icon">🔎︎</button>
             </form>
         </div>
         {% if not request.user.is_authenticated %}
             <a class="login" href="{% url 'login' %}">Login</a>
         {% else %}
             <a class="login" href="{% url 'logout' %}">Log Out</a>
-            <button class="account-button" onclick=window.location.href="{% url 'favorites' %}">Account</button>
+            <button class="account-button" onclick="window.location.href='{% url 'favorites' %}'">Account</button>
         {% endif %}
     </div>
-    <div class="sidebar-search" id = "sidebar">
+    <div class="sidebar-search" id="sidebar">
         <div class="model">
-            <button class="close-button" onclick=window.location.href="{% url 'map' %}">⨉</button>
+            <button class="close-button" onclick="window.location.href='{% url 'map' %}'">⨉</button>
             <div class="model-header"><h2>{{ restaurant.name }}</h2></div>
-            <div class = "results">
-                <div class = "result-card">
-                    {{ restaurant.rating }} <span class = "star-text">★</span> {{ cuisine_type }}
+            <div class="results">
+                <div class="result-card">
+                    {{ restaurant.rating }} <span class="star-text">★</span> {{ cuisine_type }}
                 </div>
                 <div class="result-card">
                     {{ restaurant.address }}<br>
-                    <!--({{ restaurant.lat }}, {{ restaurant.lng }})<br>-->
                     <a href="https://www.google.com/maps/dir/?api=1&destination={{ restaurant.lat }},{{ restaurant.lng }}" target="_blank">Get Directions on Google Maps</a>
                 </div>
-                <div class = "result-card">
+                <div class="result-card">
                     <b>Phone:</b> {{ restaurant.phone }}<br>
                     <b>Email:</b> {{ restaurant.email }}<br>
-                    <b>Website:</b> <a href = "{{ restaurant.website }}" target = "_blank">{{ restaurant.website }}</a>
+                    <b>Website:</b> <a href="{{ restaurant.website }}" target="_blank">{{ restaurant.website }}</a>
                 </div>
                 {% if restaurant.reviews %}
                     {% for review in restaurant.reviews %}
-                    <div class = "result-card">
-                    <strong>{{ review.author_name }}</strong> (Rating: {{ review.rating }} <span class = "star-text">★</span>): <br>
-                    {{ review.text }}
+                    <div class="result-card">
+                        <strong>{{ review.author_name }}</strong> (Rating: {{ review.rating }} <span class="star-text">★</span>): <br>
+                        {{ review.text }}
                     </div>
                     {% endfor %}
                 {% else %}
-                      <div class = "result-card">No reviews available</div>
-                 {% endif %}
+                    <div class="result-card">No reviews available</div>
+                {% endif %}
             </div>
         </div>
     </div>
     <div id="mini-map"></div>
-
 </div>
 
-    <script>
-        function initMiniMap() {
-            var location = {lat: {{ restaurant.lat }}, lng: {{ restaurant.lng }} };
-            var map = new google.maps.Map(document.getElementById('mini-map'), {
-                zoom: 15,
-                center: location,
-                mapTypeControl: false,
-                streetViewControl: false,
-                fullscreenControl: false
-            });
-            var marker = new google.maps.Marker({
-                position: location,
-                map: map
-            });
-        }
+<script>
+    function initMiniMap() {
+        var location = {lat: {{ restaurant.lat }}, lng: {{ restaurant.lng }} };
+        var map = new google.maps.Map(document.getElementById('mini-map'), {
+            zoom: 15,
+            center: location,
+            mapTypeControl: true,
+            streetViewControl: true,
+            fullscreenControl: true,
+            zoomControl: true,
 
-        // Load Google Maps Script
-        const script = document.createElement('script');
-        script.src = `https://maps.googleapis.com/maps/api/js?key={{ GOOGLE_API_KEY}}&callback=initMiniMap`;
-        script.defer = true;
-        document.head.appendChild(script);
+            // Move all controls to the left, keeping the vertical order
+            mapTypeControlOptions: {
+                position: google.maps.ControlPosition.LEFT_TOP
+            },
+            streetViewControlOptions: {
+                position: google.maps.ControlPosition.LEFT_TOP
+            },
+            fullscreenControlOptions: {
+                position: google.maps.ControlPosition.LEFT_TOP
+            },
+            zoomControlOptions: {
+                position: google.maps.ControlPosition.LEFT_TOP
+            }
+        });
+        var marker = new google.maps.Marker({
+            position: location,
+            map: map
+        });
+    }
 
-        // Open the Sidebar
-        document.addEventListener("DOMContentLoaded", function() {
-            document.getElementById('sidebar').style.display = 'block'
-        })
-    </script>
+    // Load Google Maps Script
+    const script = document.createElement('script');
+    script.src = `https://maps.googleapis.com/maps/api/js?key={{ GOOGLE_API_KEY }}&callback=initMiniMap`;
+    script.defer = true;
+    document.head.appendChild(script);
+
+    // Open the Sidebar
+    document.addEventListener("DOMContentLoaded", function() {
+        document.getElementById('sidebar').style.display = 'block';
+    });
+</script>
 </body>
 </html>
