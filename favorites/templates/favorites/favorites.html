@@ -121,6 +121,10 @@
     // favorite button behavior needs to be implemented ♡❤
 
     document.addEventListener("DOMContentLoaded", openSidebar("*FAVES*"));
+
+    document.addEventListener("DOMContentLoaded", function () {
+        this.title = "Favorites - ATL Food Finder";
+    });
 </script>
 
 <script src="https://maps.googleapis.com/maps/api/js?key={{ key }}&callback=initMap" async defer></script>

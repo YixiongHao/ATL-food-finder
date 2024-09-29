@@ -18,7 +18,7 @@
     </div>
     <div class="sidebar-search" id = "sidebar">
         <div class="model">
-            <button class="close-button" onclick="closeSidebar()">⨉</button>
+            <button class="close-button" onclick=window.location.href="{% url 'map' %}">⨉</button>
             <div class="model-header"></div>
             <form id="filterRadius" method="GET" action="{% url 'search' %}">
                 <div class="filter-section">
@@ -57,19 +57,19 @@
                         </label>
                         <label class="radio">
                             <input type="radio" name="min_rating" value="4" {% if min_rating == '4' %}checked{% endif %}>
-                            <span>>4</span>
+                            <span>>4 <span class = "star-text">★</span></span>
                         </label>
                         <label class="radio">
                             <input type="radio" name="min_rating" value="3" {% if min_rating == '3' %}checked{% endif %}>
-                            <span>>3</span>
+                            <span>>3 <span class = "star-text">★</span></span>
                         </label>
                         <label class="radio">
                             <input type="radio" name="min_rating" value="2" {% if min_rating == '2' %}checked{% endif %}>
-                            <span>>2</span>
+                            <span>>2 <span class = "star-text">★</span></span>
                         </label>
                         <label class="radio">
                             <input type="radio" name="min_rating" value="1" {% if min_rating == '1' %}checked{% endif %}>
-                            <span>>1</span>
+                            <span>>1 <span class = "star-text">★</span></span>
                         </label>
                     </div>
                 </div>
@@ -78,7 +78,7 @@
                 {% for place in results %}
                     <div class="result-card">
                         <div class="result-header">
-                            <h3>{{ place.displayName.text }}</h3>
+                            <h3><a href = "/../details/{{ place.id }}?cuisine_type={{ place.cuisine }}">{{ place.displayName.text }}</a></h3>
                             <span class="distance">{{ place.distance }} mi</span>
                         </div>
                         <div class="result-details">
@@ -191,6 +191,10 @@
     // favorite button behavior needs to be implemented ♡❤
 
     document.addEventListener("DOMContentLoaded", openSidebar());
+    document.addEventListener("DOMContentLoaded", function () {
+        this.title = "Search Results - ATL Food Finder";
+    });
+
 </script>
 
 <script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&callback=initMap" async defer></script>

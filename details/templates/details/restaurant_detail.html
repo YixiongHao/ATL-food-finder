@@ -1,112 +1,104 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ restaurant.name }} Details</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'map/styles.css' %}">
     <style>
+        html {
+            width: 100%;
+            height: 100%;
+        }
+        .main {
+            width: 100%;
+            height: 100%;
+        }
+        #mini-map {
+            height: 100%;
+            width: 100%;
+            position: absolute;
+        }
+        br {
+            line-height: 35px;
+        }
         body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-            color: #333;
+            line-height: 20px;
         }
 
-        h1, h2 {
-            color: #2c3e50;
-        }
-
-        a {
+        .result-card a {
             text-decoration: none;
-            color: #3498db;
-            margin-bottom: 20px;
-            display: inline-block;
+
         }
 
-        a:hover {
+        .result-card a:hover {
             text-decoration: underline;
         }
 
-        .container {
-            width: 90%;
-            margin: 20px auto;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        .search-input {
+            margin-top: 0px;
         }
 
-        #mini-map {
-            height: 300px;
-            width: 100%;
-            margin-top: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        .search-icon {
+            height: 40px;
         }
-
-        ul {
-            list-style: none;
-            padding: 0;
-        }
-
-        ul li {
-            margin-bottom: 15px;
-            padding: 10px;
-            background-color: #f9f9f9;
-            border-radius: 4px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        }
-
-        ul li strong {
-            display: block;
-            margin-bottom: 5px;
-            color: #2c3e50;
+        
+        .search-bar {
+            height: 40px;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Back to Home link at the top -->
-        <a href="{% url 'map' %}">Back to Home</a>
-
-        <h1>{{ restaurant.name }}</h1>
-        <p><strong>Address:</strong> {{ restaurant.address }}</p>
-        <p><strong>Location:</strong> Latitude {{ restaurant.lat }}, Longitude {{ restaurant.lng }}</p>
-        <p><strong>Cuisine type:</strong> {{ cuisine_type }}</p>
-        <p><strong>Rating:</strong> {{ restaurant.rating }}</p>
-
-        <!-- Contact Information -->
-        <h2>Contact Information:</h2>
-        <p><strong>Phone:</strong> {{ restaurant.phone }}</p>
-        <p><strong>Email:</strong> {{ restaurant.email }}</p>
-        <p><strong>Website:</strong> <a href="{{ restaurant.website }}" target="_blank">{{ restaurant.website }}</a></p>
-
-        <h2>Reviews:</h2>
-        {% if restaurant.reviews %}
-            <ul>
-                {% for review in restaurant.reviews %}
-                    <li>
-                        <strong>{{ review.author_name }}</strong> (Rating: {{ review.rating }}):
-                        {{ review.text }}
-                    </li>
-                {% endfor %}
-            </ul>
+<div class = "main">
+    <div class="frame1">
+        <div class="search-bar">
+            <form action="{% url 'search' %}" method="GET">
+            <input type="text" name = "query" placeholder="Search..." class="search-input">
+            <button type = "submit" class = "search-icon">🔎︎</button>
+            </form>
+        </div>
+        {% if not request.user.is_authenticated %}
+            <a class="login" href="{% url 'login' %}">Login</a>
         {% else %}
-            <p>No reviews available</p>
+            <a class="login" href="{% url 'logout' %}">Log Out</a>
+            <button class="account-button" onclick=window.location.href="{% url 'favorites' %}">Account</button>
         {% endif %}
-
-        <!-- Google Maps Directions Link -->
-        <h2>Get Directions:</h2>
-        <a href="https://www.google.com/maps/dir/?api=1&destination={{ restaurant.lat }},{{ restaurant.lng }}" target="_blank">
-            Get Directions on Google Maps
-        </a>
-
-        <!-- Mini Map -->
-        <h2>Location Map:</h2>
-        <div id="mini-map"></div>
     </div>
+    <div class="sidebar-search" id = "sidebar">
+        <div class="model">
+            <button class="close-button" onclick=window.location.href="{% url 'map' %}">⨉</button>
+            <div class="model-header"><h2>{{ restaurant.name }}</h2></div>
+            <div class = "results">
+                <div class = "result-card">
+                    {{ restaurant.rating }} <span class = "star-text">★</span> {{ cuisine_type }}
+                </div>
+                <div class="result-card">
+                    {{ restaurant.address }}<br>
+                    <!--({{ restaurant.lat }}, {{ restaurant.lng }})<br>-->
+                    <a href="https://www.google.com/maps/dir/?api=1&destination={{ restaurant.lat }},{{ restaurant.lng }}" target="_blank">Get Directions on Google Maps</a>
+                </div>
+                <div class = "result-card">
+                    <b>Phone:</b> {{ restaurant.phone }}<br>
+                    <b>Email:</b> {{ restaurant.email }}<br>
+                    <b>Website:</b> <a href = "{{ restaurant.website }}" target = "_blank">{{ restaurant.website }}</a>
+                </div>
+                {% if restaurant.reviews %}
+                    {% for review in restaurant.reviews %}
+                    <div class = "result-card">
+                    <strong>{{ review.author_name }}</strong> (Rating: {{ review.rating }} <span class = "star-text">★</span>): <br>
+                    {{ review.text }}
+                    </div>
+                    {% endfor %}
+                {% else %}
+                      <div class = "result-card">No reviews available</div>
+                 {% endif %}
+            </div>
+        </div>
+    </div>
+    <div id="mini-map"></div>
+
+</div>
 
     <script>
         function initMiniMap() {
@@ -129,6 +121,11 @@
         script.src = `https://maps.googleapis.com/maps/api/js?key={{ GOOGLE_API_KEY}}&callback=initMiniMap`;
         script.defer = true;
         document.head.appendChild(script);
+
+        // Open the Sidebar
+        document.addEventListener("DOMContentLoaded", function() {
+            document.getElementById('sidebar').style.display = 'block'
+        })
     </script>
 </body>
 </html>

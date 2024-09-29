@@ -143,16 +143,17 @@ body {
 .radio-group {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 5px;
 }
 
 .radio {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 5px;
     font-size: 14px;
     color: var(--text-color);
     cursor: pointer;
+    width: 75px;
 }
 
 .radio input[type="radio"] {
@@ -214,6 +215,11 @@ body {
 
 .stars {
     display: flex;
+}
+
+.star-text {
+    -webkit-text-fill-color: var(--star-color);
+    -webkit-text-stroke: .5px;
 }
 
 .star {

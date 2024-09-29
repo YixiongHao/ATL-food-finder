@@ -28,7 +28,7 @@ def search_nearby_restaurants(request):
             headers = {
                 'Content-Type': 'application/json',
                 'X-Goog-Api-Key': api_key,
-                'X-Goog-FieldMask': 'places.displayName,places.formattedAddress,places.priceLevel,'
+                'X-Goog-FieldMask': 'places.id,places.displayName,places.formattedAddress,places.priceLevel,'
                                     + 'places.rating,places.types,places.primaryType,places.editorialSummary,'
                                     + 'places.photos,places.currentOpeningHours,places.websiteUri,'
                                     + 'places.servesVegetarianFood,places.delivery,places.location,'

@@ -166,14 +166,14 @@
 
                     createElement('strong', place.name, contentDiv);
                     createElement('div', place.formatted_address, contentDiv);
-                    createElement('strong', `Phone: ${placeDetails.formatted_phone_number || 'Not available'}`, contentDiv);
-                    createElement('strong', `Email: <a href="mailto:${email}">${email}</a>`, contentDiv);
-                    createElement('strong', `Website: <a href="${placeDetails.website || '#'}" target="_blank">${placeDetails.website ? placeDetails.website : 'Not available'}</a>`, contentDiv);
-                    createElement('a', `Details`, contentDiv).href = `/details/${place.place_id}/?cuisine_type=${encodeURIComponent(cuisineType)}`;
-                    createElement('strong', `Cuisine: ${cuisineType}`, contentDiv);
-                    createElement('strong', `Rating: ${place.rating || 'No rating available'}`, contentDiv);
-                    createElement('strong', `Distance from your location: ${distance} km`, contentDiv);
-                    createElement('strong', `Reviews: ${reviewsContent}`, contentDiv);
+                    createElement('strong', `Phone: ${placeDetails.formatted_phone_number || 'Not available'}<br>`, contentDiv);
+                    createElement('strong', `Email: <a href="mailto:${email}">${email}</a><br>`, contentDiv);
+                    createElement('strong', `Website: <a href="${placeDetails.website || '#'}" target="_blank">${placeDetails.website ? placeDetails.website : 'Not available'}</a><br>`, contentDiv);
+                    createElement('a', `Details Page<br>`, contentDiv).href = `/details/${place.place_id}/?cuisine_type=${encodeURIComponent(cuisineType)}`;
+                    createElement('strong', `Cuisine: ${cuisineType}<br>`, contentDiv);
+                    createElement('strong', `Rating: ${place.rating || 'No rating available'}<br>`, contentDiv);
+                    createElement('strong', `Distance from your location: ${distance} km<br>`, contentDiv);
+                    createElement('strong', `Reviews: ${reviewsContent}<br>`, contentDiv);
                     createElement('a', `View on Google Maps`, contentDiv).href = `https://www.google.com/maps/search/?api=1&query=Google&query_place_id=${place.place_id}`;
 
                     // Set the content of the info window
