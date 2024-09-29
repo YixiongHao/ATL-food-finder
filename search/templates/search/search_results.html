@@ -114,11 +114,11 @@
         map = new google.maps.Map(document.getElementById('map'), {
             zoom: 12,
             center: {lat: 0, lng: 0},  // Default center, will be updated
-            fullscreenControl: true,  // Enable fullscreen control
+            fullscreenControl: false,  // Enable fullscreen control
             fullscreenControlOptions: {
                 position: google.maps.ControlPosition.LEFT_TOP  // Fullscreen control at the top
             },
-            mapTypeControl: true,
+            mapTypeControl: false,
             mapTypeControlOptions: {
                 position: google.maps.ControlPosition.LEFT_TOP  // Map type controls directly under fullscreen
             },

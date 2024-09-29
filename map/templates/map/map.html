@@ -29,7 +29,9 @@
 
                 map = new google.maps.Map(document.getElementById('map'), {
                     zoom: 12,
-                    center: userLocation
+                    center: userLocation,
+                    fullscreenControl: false,
+                    mapTypeControl: false
                 });
 
                 infowindow = new google.maps.InfoWindow();
