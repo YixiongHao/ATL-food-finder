@@ -37,6 +37,7 @@ def search_nearby_restaurants(request):
 
             }
             data = {
+                "rankPreference": "DISTANCE",
                 'textQuery': query,
                 'locationBias': {
                     'circle': {
