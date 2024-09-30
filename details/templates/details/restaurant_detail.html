@@ -58,9 +58,9 @@
             </form>
         </div>
         {% if not request.user.is_authenticated %}
-            <a class="login" href="{% url 'login' %}">Login</a>
+            <button class = "login" onclick=window.location.href="{% url 'login' %}">Login</button>
         {% else %}
-            <a class="login" href="{% url 'logout' %}">Log Out</a>
+            <button class = "logout" onclick=window.location.href="{% url 'logout' %}">Logout</button>
             <button class="account-button" onclick="window.location.href='{% url 'favorites' %}'">Account</button>
         {% endif %}
     </div>
@@ -68,6 +68,8 @@
         <div class="model">
             <button class="close-button" onclick="history.back()">⨉</button>
             <div class="model-header"><h2>{{ restaurant.name }}</h2></div>
+            <a href = "/../search/">Back to search</a><br><br>
+            <!-- doesn't work + needs if statements: <a href = "/../search/&query={{ query }}&radius={{ radius }}&min_rating={{ min_rating }}">Back to search</a> -->
             <div class="results">
                 <div class="result-card">
                     {{ restaurant.rating }} <span class="star-text">★</span> {{ cuisine_type }}
