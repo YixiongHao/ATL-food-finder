@@ -43,7 +43,9 @@
     function initMap() {
         map = new google.maps.Map(document.getElementById('map'), {
             zoom: 12,
-            center: {lat: 0, lng: 0}  // Default center, will be updated
+            center: {lat: 0, lng: 0},  // Default center, will be updated
+            mapTypeControl: false,
+            fullscreenControl: false
         });
 
         // Try to get user's location
