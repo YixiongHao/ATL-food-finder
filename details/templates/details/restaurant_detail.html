@@ -67,9 +67,8 @@
     <div class="sidebar-search" id="sidebar">
         <div class="model">
             <button class="close-button" onclick="history.back()">⨉</button>
+            <button class="favorite" onclick="toggleFavorite('{{ request.path }}','{{ restaurant.name }}')" id="favorite">♡</button>
             <div class="model-header"><h2>{{ restaurant.name }}</h2></div>
-            <a href = "/../search/">Back to search</a><br><br>
-            <!-- doesn't work + needs if statements: <a href = "/../search/&query={{ query }}&radius={{ radius }}&min_rating={{ min_rating }}">Back to search</a> -->
             <div class="results">
                 <div class="result-card">
                     {{ restaurant.rating }} <span class="star-text">★</span> {{ cuisine_type }}
@@ -141,5 +140,105 @@
         document.getElementById('sidebar').style.display = 'block';
     });
 </script>
+
+<script>
+
+function extractPlaceId(path) {
+    let tokens = path.split("/");
+    return tokens[2];
+}
+
+const favoritePlaceIds = async() => {
+    let result = await fetchFavorites();
+    return result;
+}
+
+function setButtonState() {
+    let button = document.getElementById("favorite");
+    button.innerText = isFavorite(button.id) ? "♡" : "❤";
+}
+document.addEventListener("DOMContentLoaded", setButtonState())
+
+async function fetchFavorites() {
+    const response = await fetch('{% url "get_favorites" %}');
+    if (response.ok) {
+        return await response.json();
+    } else {
+        console.error('Failed to fetch favorites');
+        return [];
+    }
+}
+
+function addFavorite(placeId, name) {
+    fetch(`{% url "add_favorite" %}`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            place_id: placeId,
+            name: name
+        })
+    })
+    .then(response => {
+        if (response.ok) {
+            // showNotification('Added to favorites!', 'added');
+        } else if (response.status === 403) {
+            window.location.href = '/login';
+        }
+    });
+}
+
+function removeFavorite(placeId, name) {
+    fetch(`{% url "remove_favorite" %}`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            place_id: placeId,
+            name: name
+        })
+    })
+    .then(response => {
+        if (response.ok) {
+            // showNotification('Removed from favorites!', 'removed');
+        } else if (response.status === 403) {
+            window.location.href = '/login';
+        }
+    });
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function toggleFavorite(path, name) {
+    let placeID = extractPlaceId(path);
+    let button = document.getElementById("favorite");
+
+    if (button.innerText === "❤") {
+        removeFavorite(placeID, name);
+        button.innerText = "♡"; // Change to "Favorite"
+    } else {
+        addFavorite(placeID, name);
+        button.innerText = "❤"; // Change to "Unfavorite"
+    }
+}
+</script>
+
 </body>
 </html>

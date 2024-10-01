@@ -253,5 +253,15 @@ body {
     position: absolute;
     bottom: 10px;
     right: 10px;
+    color: #a9172f;
+    height: 40px;
+    width: 40px;
+}
+
+.favorite {
+    border: none;
+    background-color: transparent;
+    color: #a9172f;
+    float: right;
 }
 
