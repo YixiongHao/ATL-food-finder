@@ -147,16 +147,21 @@ function extractPlaceId(path) {
     return tokens[2];
 }
 
-const favoritePlaceIds = async() => {
-    let result = await fetchFavorites();
-    return result;
+async function isFavorite(placeId) {
+    const favorites = await fetchFavorites();
+    console.log(favorites);
+    return favorites.includes(placeId);
 }
 
-function setButtonState() {
+
+async function setButtonState() {
     let button = document.getElementById("favorite");
-    button.innerText = isFavorite(button.id) ? "♡" : "❤";
+    let placeId = extractPlaceId('{{ request.path }}');
+    let isFav = await isFavorite(placeId);
+    button.innerText = isFav ? "❤" : "♡";
 }
-document.addEventListener("DOMContentLoaded", setButtonState())
+
+document.addEventListener("DOMContentLoaded", setButtonState);
 
 async function fetchFavorites() {
     const response = await fetch('{% url "get_favorites" %}');
