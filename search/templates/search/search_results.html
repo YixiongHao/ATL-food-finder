@@ -1,5 +1,8 @@
 {% extends 'map/base.html' %}
+{% load static %}
 {% block content %}
+
+<!--<script src = "{% static 'favorites.js' %}"></script>-->
 
 <div>
     <div class="frame1">
@@ -78,7 +81,7 @@
                 {% for place in results %}
                     <div class="result-card">
                         <div class="result-header">
-                            <h3><a href = "/../details/{{ place.id }}?cuisine_type={{ place.cuisine }}&query={{ query }}&radius={{ radius }}&min_rating={{ min_rating }}">{{ place.displayName.text }}</a></h3>
+                            <h3><a href = "/../details/{{ place.id }}?cuisine_type={{ place.cuisine }}">{{ place.displayName.text }}</a></h3>
                             <span class="distance">{{ place.distance }} mi</span>
                         </div>
                         <div class="result-details">
@@ -92,7 +95,7 @@
                             </div>
                             <span class="cuisine">{{ place.cuisine }}</span>
                         </div>
-                        <button class="favorite-button">♡</button> <!-- or ❤︎ if favorited -->
+                        <button class="favorite-button" onclick="toggleFavorite('{{ place.id }}','{{ place.displayName.text }}')" id="{{ place.id }}">♡</button>
                         <p class="description">{{ place.formattedAddress }}</p>
                     </div>
                 {% empty %}
@@ -220,7 +223,6 @@
     document.addEventListener("DOMContentLoaded", function () {
         this.title = "Search Results - ATL Food Finder";
     });
-
 </script>
 
 <script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&callback=initMap" async defer></script>
@@ -271,6 +273,102 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+</script>
+
+<script>
+
+const favoritePlaceIds = async() => {
+    let result = await fetchFavorites();
+    return result;
+}
+
+function setButtonStates() {
+    let favButtons = document.getElementsByClassName("favorite-button");
+    for (const button in favButtons) {
+        button.innerText = isFavorite(button.id) ? "♡" : "❤";
+    }
+}
+document.addEventListener("DOMContentLoaded", setButtonStates())
+
+async function fetchFavorites() {
+    const response = await fetch('{% url "get_favorites" %}');
+    if (response.ok) {
+        return await response.json();
+    } else {
+        console.error('Failed to fetch favorites');
+        return [];
+    }
+}
+
+function addFavorite(placeId, name) {
+    fetch(`{% url "add_favorite" %}`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            place_id: placeId,
+            name: name
+        })
+    })
+    .then(response => {
+        if (response.ok) {
+            // showNotification('Added to favorites!', 'added');
+        } else if (response.status === 403) {
+            window.location.href = '/login';
+        }
+    });
+}
+
+function removeFavorite(placeId, name) {
+    fetch(`{% url "remove_favorite" %}`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            place_id: placeId,
+            name: name
+        })
+    })
+    .then(response => {
+        if (response.ok) {
+            // showNotification('Removed from favorites!', 'removed');
+        } else if (response.status === 403) {
+            window.location.href = '/login';
+        }
+    });
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function toggleFavorite(placeID, name) {
+    let button = document.getElementById(placeID);
+
+    if (button.innerText === "♡") {
+        removeFavorite(placeID, name);
+        button.innerText = "❤"; // Change to "Favorite"
+    } else {
+        addFavorite(placeID, name);
+        button.innerText = "♡"; // Change to "Unfavorite"
+    }
+}
+
 </script>
 
 {% endblock content %}
