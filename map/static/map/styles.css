@@ -80,15 +80,26 @@ body {
     padding: 0 16px;
     font-size: 16px;
     color: var(--text-color);
-    margin-top: 25px;
+    margin-top: 17px;
 }
 
-.search-icon, .close-button, .favorite-button {
+.close-button, .favorite-button {
     width: 48px;
     height: 48px;
     border: none;
     background-color: transparent;
     cursor: pointer;
+}
+
+.search-icon {
+    width: 30px;
+    height: 30px;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+    position: absolute;
+    right: 10px;
+    top: 5px;
 }
 
 .close-button {
@@ -162,13 +173,13 @@ body {
     font-size: 14px;
     color: var(--text-color);
     cursor: pointer;
-    width: 72px;
+    width: 70px;
 }
 
 .radio input[type="radio"] {
     appearance: none;
-    width: 20px;
-    height: 20px;
+    width: 15px;
+    height: 15px;
     border: 1px solid var(--border-color);
     border-radius: 50%;
     position: relative;
@@ -177,8 +188,8 @@ body {
 .radio input[type="radio"]:checked::after {
     content: '';
     position: absolute;
-    width: 12px;
-    height: 12px;
+    width: 9px;
+    height: 9px;
     background-color: var(--border-color);
     border-radius: 50%;
     top: 50%;
@@ -208,6 +219,12 @@ body {
     font-weight: 600;
     color: var(--text-color);
     margin: 0;
+    overflow: hidden;
+    overflow-wrap: normal;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    max-width: 310px;
+    max-height: 21px;
 }
 
 .result-details {
@@ -246,16 +263,16 @@ body {
 .description {
     font-size: 12px;
     color: var(--text-color);
-    margin-bottom: 20px;
+    margin-bottom: 0px;
 }
 
 .favorite-button {
     position: absolute;
-    bottom: 10px;
-    right: 10px;
+    right: 15px;
+    top: 68px;
     color: #a9172f;
-    height: 40px;
-    width: 40px;
+    height: 20px;
+    width: 20px;
 }
 
 .favorite {
@@ -264,5 +281,8 @@ body {
     color: #a9172f;
     float: right;
     font-size: 32px;
+    width: 40px;
+    position: relative;
+    bottom: 15px;
 }
 
