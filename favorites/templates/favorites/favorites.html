@@ -5,22 +5,22 @@
     <div class="frame1">
         <div class="search-bar">
             <form action="{% url 'search' %}" method="GET">
-            <input type="text" name = "query" placeholder="Search..." class="search-input">
-            <button type = "submit" class = "search-icon">🔎︎</button>
+            <input type="text" name="query" placeholder="Search..." class="search-input">
+            <button type="submit" class="search-icon">🔎︎</button>
             </form>
         </div>
         {% if not request.user.is_authenticated %}
-            <button class = "login" onclick=window.location.href="{% url 'login' %}">Login</button>
+            <button class="login" onclick=window.location.href="{% url 'login' %}">Login</button>
         {% else %}
-            <button class = "logout" onclick=window.location.href="{% url 'logout' %}">Logout</button>
+            <button class="logout" onclick=window.location.href="{% url 'logout' %}">Logout</button>
             <button class="account-button" onclick=window.location.href="{% url 'favorites' %}">Account</button>
         {% endif %}
     </div>
-    <div class="sidebar-search" id = "sidebar">
+    <div class="sidebar-search" id="sidebar">
         <div class="model">
             <button class="close-button" onclick="goToMap()">⨉</button>
             <div class="model-header"></div>
-            <div class = "results">
+            <div class="results">
                 {% for restaurant in saved_restaurants %}
                     <div class="result-card">
                         <h3>{{ restaurant.name }}</h3>
@@ -33,7 +33,6 @@
         </div>
     </div>
     <div id="map"></div>
-
 </div>
 
 <script>
@@ -43,7 +42,7 @@
     function initMap() {
         map = new google.maps.Map(document.getElementById('map'), {
             zoom: 12,
-            center: {lat: 0, lng: 0},  // Default center, will be updated
+            center: { lat: 0, lng: 0 },  // Default center, will be updated
             mapTypeControl: false,
             fullscreenControl: false
         });
@@ -58,11 +57,14 @@
                     };
                     map.setCenter(userLocation);
 
-                    // Add a marker for user's location
+                    // Add a blue marker for user's location
                     new google.maps.Marker({
                         position: userLocation,
                         map: map,
-                        title: "Your Location"
+                        title: "Your Location",
+                        icon: {
+                            url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
+                        }
                     });
 
                     // You can send this location to your Django view using AJAX
@@ -75,6 +77,24 @@
         } else {
             handleLocationError(false, map.getCenter());
         }
+
+        // Add markers for favorited restaurants
+        const savedRestaurants = JSON.parse('{{ saved_restaurants_json|escapejs }}');
+        savedRestaurants.forEach((restaurant) => {
+            const marker = new google.maps.Marker({
+                position: { lat: restaurant.latitude, lng: restaurant.longitude },
+                map: map,
+                title: restaurant.name
+            });
+
+            const infoWindow = new google.maps.InfoWindow({
+                content: `<h3>${restaurant.name}</h3><p>${restaurant.address}</p>`
+            });
+
+            marker.addListener('click', () => {
+                infoWindow.open(map, marker);
+            });
+        });
     }
 
     function handleLocationError(browserHasGeolocation, pos) {
@@ -104,12 +124,12 @@
     window.initMap = initMap;
 </script>
 
-    <script>
-    function goToMap(){
+<script>
+    function goToMap() {
         window.location.href = 'http://localhost:8000';
     }
 
-    function openSidebar(term){
+    function openSidebar(term) {
         // use search term OR pass in keyword (*FAVES*) to open to favorites
         var header = document.getElementsByClassName("model-header")[0];
         if (term === "*FAVES*") {
@@ -119,8 +139,6 @@
         }
         document.getElementById('sidebar').style.display = 'block';
     }
-
-    // favorite button behavior needs to be implemented ♡❤
 
     document.addEventListener("DOMContentLoaded", openSidebar("*FAVES*"));
 
