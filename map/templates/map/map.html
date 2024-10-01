@@ -126,8 +126,8 @@
                         place.geometry.location.lng()
                     ).toFixed(2);
 
-                    // Mock email for demonstration; in a real app, email data should be retrieved from the backend
-                    const email = `info@${placeDetails.website ? new URL(placeDetails.website).hostname : 'example.com'}`;
+
+
 
                     const favoritePlaceIds = await fetchFavorites();
                     isFavorite = favoritePlaceIds.includes(place.place_id);
@@ -169,7 +169,6 @@
                     createElement('strong', place.name, contentDiv);
                     createElement('div', place.formatted_address, contentDiv);
                     createElement('strong', `Phone: ${placeDetails.formatted_phone_number || 'Not available'}<br>`, contentDiv);
-                    createElement('strong', `Email: <a href="mailto:${email}">${email}</a><br>`, contentDiv);
                     createElement('strong', `Website: <a href="${placeDetails.website || '#'}" target="_blank">${placeDetails.website ? placeDetails.website : 'Not available'}</a><br>`, contentDiv);
                     createElement('a', `Details Page<br>`, contentDiv).href = `/details/${place.place_id}/?cuisine_type=${encodeURIComponent(cuisineType)}`;
                     createElement('strong', `Cuisine: ${cuisineType}<br>`, contentDiv);
