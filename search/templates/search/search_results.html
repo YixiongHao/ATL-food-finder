@@ -290,18 +290,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <script>
 
-const favoritePlaceIds = async() => {
-    let result = await fetchFavorites();
-    return result;
-}
-
-function setButtonStates() {
+async function setButtonStates() {
+    const favorites = await fetchFavorites();
     let favButtons = document.getElementsByClassName("favorite-button");
-    for (const button in favButtons) {
-        button.innerText = isFavorite(button.id) ? "♡" : "❤";
+    console.log(favorites);
+    console.log(favButtons);
+    for (i = 0; i < favButtons.length; i++) {
+        const button = favButtons[i];
+        button.innerText = favorites.some(elem => JSON.stringify(button.id) === JSON.stringify(elem)) ? "❤" : "♡";
+        console.log(button.id);
+        console.log(button.innerText);
     }
 }
-document.addEventListener("DOMContentLoaded", setButtonStates())
+
+document.addEventListener("DOMContentLoaded", setButtonStates)
 
 async function fetchFavorites() {
     const response = await fetch('{% url "get_favorites" %}');
@@ -358,12 +360,12 @@ function removeFavorite(placeId, name) {
 function toggleFavorite(placeID, name) {
     let button = document.getElementById(placeID);
 
-    if (button.innerText === "♡") {
+    if (button.innerText === "❤") {
         removeFavorite(placeID, name);
-        button.innerText = "❤"; // Change to "Favorite"
+        button.innerText = "♡"; // Change to "Favorite"
     } else {
         addFavorite(placeID, name);
-        button.innerText = "♡"; // Change to "Unfavorite"
+        button.innerText = "❤"; // Change to "Unfavorite"
     }
 }
 
