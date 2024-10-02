@@ -3,6 +3,7 @@
 
 <div>
     <div class="frame1">
+        <button class = "home-button" onclick=window.location.href="{% url 'map' %}">Home</button>
         <div class="search-bar">
             <form action="{% url 'search' %}" method="GET">
             <input type="text" name="query" placeholder="Search..." class="search-input">
@@ -18,7 +19,7 @@
     </div>
     <div class="sidebar-search" id="sidebar">
         <div class="model">
-            <button class="close-button" onclick="goToMap()">⨉</button>
+            <button class="close-button" onclick="history.back()">⨉</button>
             <div class="model-header"></div>
             <div class="results">
                 {% for restaurant in saved_restaurants %}
