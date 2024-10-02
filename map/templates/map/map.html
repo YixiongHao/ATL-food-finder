@@ -306,6 +306,7 @@
         <div class="mapholder">
                 <div class="frame1">
                     <!--<div id="notification">Added to favorites!</div>-->
+                    <button class = "home-button" onclick=window.location.href="{% url 'map' %}">Home</button>
                     <div class="search-bar">
                         <form action="{% url 'search' %}" method="GET">
                             <input type="text" name="query" placeholder="Search..." class="search-input">

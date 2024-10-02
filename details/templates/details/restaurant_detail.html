@@ -39,7 +39,16 @@
             padding: 0px;
         }
         .search-input {
-            margin: 0px;
+            margin-top: 0px;
+            margin-left: 5px;
+        }
+        .search-icon {
+            font-size: 16px;
+            top: 4px;
+        }
+        
+        .frame1 {
+            font-family: 'Roboto', 'Nunito', sans-serif; margin: ;
         }
         
     </style>
@@ -47,6 +56,7 @@
 <body>
 <div class="main">
     <div class="frame1">
+        <button class = "home-button" onclick=window.location.href="{% url 'map' %}">Home</button>
         <div class="search-bar">
             <form action="{% url 'search' %}" method="GET">
                 <input type="text" name="query" placeholder="Search..." class="search-input">
