@@ -33,6 +33,7 @@ body {
     border-radius: 5px;
     display: block; /* Makes the button behave like a block element */
     transition-duration: 0.4s;
+    float: right;
     /*margin-left: 50px;*/
     /*margin-right: auto;*/
 }
